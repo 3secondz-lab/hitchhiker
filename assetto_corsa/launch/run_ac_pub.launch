@@ -1,0 +1,20 @@
+<!-- ac_pub launch file -->
+<launch>
+
+  <arg name="freq_pub" default="500" />
+  <arg name="host" default="localhost" />
+  <arg name="port" default="9996" />
+
+  <node name="ac_pub" pkg="assetto_corsa" type="ac_pub.py" required="true" output="screen">
+
+    <!-- Parameters -->
+    <param name="freq_pub" value="$(arg freq_pub)" type="int" />
+    <param name="host" value="$(arg host)" type="str" />
+    <param name="port" value="$(arg port)" type="int" />
+
+  </node>
+
+  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" args = "--perspective-file $(find assetto_corsa)/tools/rqt_gui_topic_graph.perspective"/>
+
+</launch>
+
