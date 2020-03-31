@@ -1,0 +1,28 @@
+<!-- imu_publisher launch file -->
+<launch>
+
+  <arg name="freq_imu" default="250" />
+  <arg name="topic_imu" default="imu" />
+  <arg name="dev_imu" default="/dev/ttyUSB0" />
+
+  <!--
+  <arg name="acc_fsr" default="2.0" />
+  <arg name="gyr_fsr" default="125.0" />
+  -->
+
+  <node name="imu_publisher" pkg="imu_publisher" type="imu_publisher" required="true" output="screen">
+
+    <!-- Parameters -->
+    <param name="freq_imu" value="$(arg freq_imu)" type="int" />
+    <param name="topic_imu" value="$(arg topic_imu)" type="str" />
+    <param name="dev_imu" value="$(arg dev_imu)" type="str" />
+
+    <!--
+    <param name="acc_fsr" value="$(arg acc_fsr)" type="double" />
+    <param name="gyr_fsr" value="$(arg gyr_fsr)" type="double" />
+    -->
+
+  </node>
+
+</launch>
+
