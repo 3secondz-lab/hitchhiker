@@ -20,9 +20,10 @@ matlab_pub = rospublisher(topic_name, 'std_msgs/Float64MultiArray');
 
 
 %% Data subscription example
-try 
+% try 
     Initialization_JH;
     while(1)
+        try
         msg = rosmessage('std_msgs/Float64MultiArray');
         Head_code_JH;
         msg.Data = [u_steer, u_acc, u_brk];
@@ -34,9 +35,12 @@ try
         send(matlab_pub, msg);
         
         pause(0.1);
+        catch 
+           disp('catched'); 
+        end
     end
-catch
-    pause();
-end
+% catch
+%     pause();
+% end
 
 rosshutdown

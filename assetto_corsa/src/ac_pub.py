@@ -9,7 +9,7 @@
 import rospy
 from assetto_corsa.msg import ACRaw
 from translate import *
-from std_msgs.msg import String
+from std_msgs.msg import String, MultiArrayDimension
 
 import logging
 import sys
@@ -35,51 +35,68 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
     m.header.stamp = rospy.Time.now()
 
     # m.identifier = String(data=data_udp.identifier[0])
-    m.size = data_udp.size
-    m.speed_Kmh = data_udp.speed_Kmh
-    m.speed_Mph = data_udp.speed_Mph
-    m.speed_Ms = data_udp.speed_Ms
-    m.isAbsEnabled = data_udp.isAbsEnabled
-    m.isAbsInAction = data_udp.isAbsInAction
-    m.isTcInAction = data_udp.isTcInAction
-    m.isTcEnabled = data_udp.isTcEnabled
-    m.isInPit = data_udp.isInPit
-    m.isEngineLimiterOn = data_udp.isEngineLimiterOn
-    m.accG_vertical = data_udp.accG_vertical
-    m.accG_horizontal = data_udp.accG_horizontal
-    m.accG_frontal = data_udp.accG_frontal
-    m.lapTime = data_udp.lapTime
-    m.lastLap = data_udp.lastLap
-    m.bestLap = data_udp.bestLap
-    m.lapCount = data_udp.lapCount
-    m.gas = data_udp.gas
-    m.brake = data_udp.brake
-    m.clutch = data_udp.clutch
-    m.engineRPM = data_udp.engineRPM
-    m.steer = data_udp.steer
-    m.gear = data_udp.gear
-    m.cgHeight = data_udp.cgHeight
+    m.size.data = data_udp.size
+    m.speed_Kmh.data = data_udp.speed_Kmh
+    m.speed_Mph.data = data_udp.speed_Mph
+    m.speed_Ms.data = data_udp.speed_Ms
+    m.isAbsEnabled.data = data_udp.isAbsEnabled
+    m.isAbsInAction.data = data_udp.isAbsInAction
+    m.isTcInAction.data = data_udp.isTcInAction
+    m.isTcEnabled.data = data_udp.isTcEnabled
+    m.isInPit.data = data_udp.isInPit
+    m.isEngineLimiterOn.data = data_udp.isEngineLimiterOn
+    m.accG_vertical.data = data_udp.accG_vertical
+    m.accG_horizontal.data = data_udp.accG_horizontal
+    m.accG_frontal.data = data_udp.accG_frontal
+    m.lapTime.data = data_udp.lapTime
+    m.lastLap.data = data_udp.lastLap
+    m.bestLap.data = data_udp.bestLap
+    m.lapCount.data = data_udp.lapCount
+    m.gas.data = data_udp.gas
+    m.brake.data = data_udp.brake
+    m.clutch.data = data_udp.clutch
+    m.engineRPM.data = data_udp.engineRPM
+    m.steer.data = data_udp.steer
+    m.gear.data = data_udp.gear
+    m.cgHeight.data = data_udp.cgHeight
+
+    # m.wheelAngularSpeed.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.slipAngle.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.slipAngle_ContactPatch.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.slipRatio.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.tyreSlip.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.ndSlip.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.load.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.Dy.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.Mz.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.tyreDirtyLevel.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.camberRAD.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.tyreRadius.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.tyreLoadedRadius.layout.dim.append(MultiArrayDimension('val', 4, 4))
+    # m.suspensionHeight.layout.dim.append(MultiArrayDimension('val', 4, 4))
 
     for k in range(0, 4):
-        m.wheelAngularSpeed[k] = data_udp.wheelAngularSpeed[k]
-        m.slipAngle[k] = data_udp.slipAngle[k]
-        m.slipAngle_ContactPatch[k] = data_udp.slipAngle_ContactPatch[k]
-        m.slipRatio[k] = data_udp.slipRatio[k]
-        m.tyreSlip[k] = data_udp.tyreSlip[k]
-        m.ndSlip[k] = data_udp.ndSlip[k]
-        m.load[k] = data_udp.load[k]
-        m.Dy[k] = data_udp.Dy[k]
-        m.Mz[k] = data_udp.Mz[k]
-        m.tyreDirtyLevel[k] = data_udp.tyreDirtyLevel[k]
-        m.camberRAD[k] = data_udp.camberRAD[k]
-        m.tyreRadius[k] = data_udp.tyreRadius[k]
-        m.tyreLoadedRadius[k] = data_udp.tyreLoadedRadius[k]
-        m.suspensionHeight[k] = data_udp.suspensionHeight[k]
-    m.carPositionNormalized = data_udp.carPositionNormalized
-    m.carSlope = data_udp.carSlope
+        m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
+        m.slipAngle.data.append(data_udp.slipAngle[k])
+        m.slipAngle_ContactPatch.data.append(data_udp.slipAngle_ContactPatch[k])
+        m.slipRatio.data.append(data_udp.slipRatio[k])
+        m.tyreSlip.data.append(data_udp.tyreSlip[k])
+        m.ndSlip.data.append(data_udp.ndSlip[k])
+        m.load.data.append(data_udp.load[k])
+        m.Dy.data.append(data_udp.Dy[k])
+        m.Mz.data.append(data_udp.Mz[k])
+        m.tyreDirtyLevel.data.append(data_udp.tyreDirtyLevel[k])
+        m.camberRAD.data.append(data_udp.camberRAD[k])
+        m.tyreRadius.data.append(data_udp.tyreRadius[k])
+        m.tyreLoadedRadius.data.append(data_udp.tyreLoadedRadius[k])
+        m.suspensionHeight.data.append(data_udp.suspensionHeight[k])
+    m.carPositionNormalized.data = data_udp.carPositionNormalized
+    m.carSlope.data = data_udp.carSlope
+
+    # m.carCoordinates.layout.dim.append(MultiArrayDimension('val', 3, 3))
 
     for k in range(0, 3):
-        m.carCoordinates[k] = data_udp.carCoordinates[k]
+        m.carCoordinates.data.append(data_udp.carCoordinates[k])
 
     if preview is not None:
         # Check validity
@@ -104,23 +121,23 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
                 return m
 
         # plane = [center_x, center_y, left_x, left_y, right_x, right_y, radius, psie, cte]
-        m.plane_center_x = np.array(preview['plane']['center_x'], dtype=np.float64)
-        m.plane_center_y = np.array(preview['plane']['center_y'], dtype=np.float64)
-        m.plane_left_x = np.array(preview['plane']['left_x'], dtype=np.float64)
-        m.plane_left_y = np.array(preview['plane']['left_y'], dtype=np.float64)
-        m.plane_right_x = np.array(preview['plane']['right_x'], dtype=np.float64)
-        m.plane_right_y = np.array(preview['plane']['right_y'], dtype=np.float64)
-        m.plane_radius = np.array(preview['plane']['radius'], dtype=np.float64)
-        m.plane_psie = preview['plane']['psie']
-        m.plane_cte = preview['plane']['cte']
+        m.plane_center_x.data = np.array(preview['plane']['center_x'], dtype=np.float64)
+        m.plane_center_y.data = np.array(preview['plane']['center_y'], dtype=np.float64)
+        m.plane_left_x.data = np.array(preview['plane']['left_x'], dtype=np.float64)
+        m.plane_left_y.data = np.array(preview['plane']['left_y'], dtype=np.float64)
+        m.plane_right_x.data = np.array(preview['plane']['right_x'], dtype=np.float64)
+        m.plane_right_y.data = np.array(preview['plane']['right_y'], dtype=np.float64)
+        m.plane_radius.data = np.array(preview['plane']['radius'], dtype=np.float64)
+        m.plane_psie.data = preview['plane']['psie']
+        m.plane_cte.data = preview['plane']['cte']
 
         # cam = [center_x, center_y, left_x, left_y, right_x, right_y]
-        m.cam_center_x = np.array(preview['cam']['center_x'], dtype=np.float64)
-        m.cam_center_y = np.array(preview['cam']['center_y'], dtype=np.float64)
-        m.cam_left_x = np.array(preview['cam']['left_x'], dtype=np.float64)
-        m.cam_left_y = np.array(preview['cam']['left_y'], dtype=np.float64)
-        m.cam_right_x = np.array(preview['cam']['right_x'], dtype=np.float64)
-        m.cam_right_y = np.array(preview['cam']['right_y'], dtype=np.float64)
+        m.cam_center_x.data = np.array(preview['cam']['center_x'], dtype=np.float64)
+        m.cam_center_y.data = np.array(preview['cam']['center_y'], dtype=np.float64)
+        m.cam_left_x.data = np.array(preview['cam']['left_x'], dtype=np.float64)
+        m.cam_left_y.data = np.array(preview['cam']['left_y'], dtype=np.float64)
+        m.cam_right_x.data = np.array(preview['cam']['right_x'], dtype=np.float64)
+        m.cam_right_y.data = np.array(preview['cam']['right_y'], dtype=np.float64)
 
     return m
 
@@ -180,8 +197,6 @@ if __name__ == '__main__':
 
             # Convert data to msg
             m = generate_msg_from_data(payload, aipath.preview)
-
-            # print(aipath.preview['plane'])
 
             pub.publish(m)
 
