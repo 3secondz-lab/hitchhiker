@@ -1,4 +1,4 @@
-# ACRaw2 Msg
+# ACRaw Msg
 
 # From Assetto Corsa
 std_msgs/Header header
