@@ -8,4 +8,5 @@ ublox/
 usb_cam/
 imu_publisher/
 
-./CMakeLists.txt
+webviz_test
+/CMakeLists.txt
