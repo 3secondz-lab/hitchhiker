@@ -22,10 +22,14 @@ matlab_pub = rospublisher(topic_name, 'std_msgs/Float64MultiArray');
 %% Data subscription example
 % try 
     Initialization_JH;
+    timeint=0;
+    t_prev = now;
     while(1)
+%         tic
         try
         msg = rosmessage('std_msgs/Float64MultiArray');
-        Head_code_JH;
+%         Head_code_JH;
+        head_code_0414;
         msg.Data = [u_steer, u_acc, u_brk];
         msg.Layout.Dim = rosmessage('std_msgs/MultiArrayDimension');
         msg.Layout.Dim.Label = 'val';
@@ -33,11 +37,17 @@ matlab_pub = rospublisher(topic_name, 'std_msgs/Float64MultiArray');
         msg.Layout.Dim.Stride = 3;
         
         send(matlab_pub, msg);
-        
-        pause(0.1);
-        catch 
+%         figure(10);plot(Y_cam,X_cam);xlim([-10,10]);ylim([0,50])
+%         figure(20);plot(curv_preview);ylim([-0.02,0.02])
+%         pause(0.05);
+        catch
            disp('catched'); 
         end
+%         tt=toc;
+%         timeint=timeint+tt;
+        t_now = now;
+        timeint = timeint + (t_now - t_prev);
+        t_prev = t_now;
     end
 % catch
 %     pause();

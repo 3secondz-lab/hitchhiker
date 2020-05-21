@@ -1,0 +1,37 @@
+<!-- assetto_corsa launch file -->
+<launch>
+
+  <!-- ac_pub arguments -->
+  <arg name="ac_pub_freq" default="500" />
+  <arg name="ac_pub_host" default="192.168.0.48" />
+  <arg name="ac_pub_port" default="9996" />
+
+  <!-- ac_joystick arguments -->
+  <arg name="ac_joy_topic_name" default="/matlab_controller" />
+  <arg name="ac_joy_freq_sub" default="200" />
+  <arg name="ac_joy_host" default="localhost" />
+  <arg name="ac_joy_port" default="13240" />
+
+  <!-- ac_pub -->
+  <include file="$(find assetto_corsa)/launch/run_ac_pub.launch">
+    <arg name="freq_pub" default="$(arg ac_pub_freq)" />
+    <arg name="host" default="$(arg ac_pub_host)" />
+    <arg name="port" default="$(arg ac_pub_port)" />
+  </include>
+
+  <!-- ac_joystick -->
+  <include file="$(find assetto_corsa)/launch/run_ac_joystick.launch">
+    <arg name="topic_name" default="$(arg ac_joy_topic_name)" />
+    <arg name="freq_sub" default="$(arg ac_joy_freq_sub)" />
+    <arg name="host" default="$(arg ac_joy_host)" />
+    <arg name="port" default="$(arg ac_joy_port)" />
+  </include>
+
+  <!-- rqt_reconfigure -->
+  <node name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" />
+
+  <!-- rosbridge websocket server -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+
+</launch>
+

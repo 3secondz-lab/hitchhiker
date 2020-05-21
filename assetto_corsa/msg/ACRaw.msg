@@ -56,6 +56,7 @@ std_msgs/Float64MultiArray plane_right_y
 std_msgs/Float64MultiArray plane_radius
 std_msgs/Float64 plane_psie
 std_msgs/Float64 plane_cte
+std_msgs/Float64MultiArray plane_speed
 
 # cam = [center_x, center_y, left_x, left_y, right_x, right_y]
 std_msgs/Float64MultiArray cam_center_x

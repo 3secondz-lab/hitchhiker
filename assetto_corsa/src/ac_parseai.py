@@ -192,6 +192,7 @@ class ai(object):
         left_y = left_y - center[1]
         right_x = right_x - center[0]
         right_y = right_y - center[1]
+        speed = self.line['speed'][window]
 
         yaw = self.ctl['psi']
 
@@ -204,6 +205,7 @@ class ai(object):
         self.preview['plane']['left_y'] = -np.sin(yaw)*left_x + np.cos(yaw)*left_y
         self.preview['plane']['right_x'] = np.cos(yaw)*right_x + np.sin(yaw)*right_y
         self.preview['plane']['right_y'] = -np.sin(yaw)*right_x + np.cos(yaw)*right_y
+        self.preview['plane']['speed'] = self.line['speed'][window]
 
         M = np.array([[ 1.89999998e-01,  8.99999976e-02,  5.00000000e-01],
        [-2.22044605e-17,  9.99999975e-02, -4.99999987e-01],
