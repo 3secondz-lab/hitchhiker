@@ -16,7 +16,5 @@
 
   <node name="ac_param_server" pkg="assetto_corsa" type="ac_param_server.py" required="true" output="screen" />
 
-  <node name="rqt_gui" pkg="rqt_gui" type="rqt_gui" args = "--perspective-file $(find assetto_corsa)/tools/rqt_gui_topic_graph.perspective"/>
-
 </launch>
 

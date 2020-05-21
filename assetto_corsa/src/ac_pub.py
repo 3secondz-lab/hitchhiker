@@ -130,6 +130,7 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
         m.plane_radius.data = np.array(preview['plane']['radius'], dtype=np.float64)
         m.plane_psie.data = preview['plane']['psie']
         m.plane_cte.data = preview['plane']['cte']
+        m.plane_speed.data = np.array(preview['plane']['speed'])
 
         # cam = [center_x, center_y, left_x, left_y, right_x, right_y]
         m.cam_center_x.data = np.array(preview['cam']['center_x'], dtype=np.float64)

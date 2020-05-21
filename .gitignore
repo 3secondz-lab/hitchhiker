@@ -6,7 +6,7 @@ ros_example/
 roslibjs/
 ublox/
 usb_cam/
-imu_publisher/
 
+imu_publisher
 webviz_test
 /CMakeLists.txt
