@@ -83,16 +83,16 @@ def abs_sobel_th(img, orient='x', ksize=3, thresh=(30,120)):
     # Grayscale image
     # NOTE: we already saw that standard grayscaling lost color information for the lane lines
     # Explore gradients in other colors spaces / color channels to see what might work better
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    #gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     
-    sobel = np.zeros_like(gray)
+    sobel = np.zeros_like(img)
 
     if orient == 'x' :
         # Sobel x
-        sobel = cv2.Sobel(gray, cv2.CV_64F, 1, 0) # Take the derivative in x
+        sobel = cv2.Sobel(img, cv2.CV_64F, 1, 0) # Take the derivative in x
     if orient == 'y' :
         # Sobel y
-        sobel = cv2.Sobel(gray, cv2.CV_64F, 0, 1) # Take the derivative in y
+        sobel = cv2.Sobel(img, cv2.CV_64F, 0, 1) # Take the derivative in y
         
     abs_sobel = np.absolute(sobel) # Absolute x derivative to accentuate lines away from horizontal
     scaled_sobel = np.uint8(255*abs_sobel/np.max(abs_sobel))
@@ -118,10 +118,10 @@ def mag_sobel_th(img, ksize=31, thresh=(30,100)):
     # Grayscale image
     # NOTE: we already saw that standard grayscaling lost color information for the lane lines
     # Explore gradients in other colors spaces / color channels to see what might work better
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    #gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-    sobelx = cv2.Sobel(gray, cv2.CV_64F, 1, 0) # Take the derivative in x
-    sobely = cv2.Sobel(gray, cv2.CV_64F, 0, 1) # Take the derivative in y
+    sobelx = cv2.Sobel(img, cv2.CV_64F, 1, 0) # Take the derivative in x
+    sobely = cv2.Sobel(img, cv2.CV_64F, 0, 1) # Take the derivative in y
     mag_sobel = np.sqrt(sobelx**2 + sobely**2)
 
     scaled_sobel = (255*mag_sobel/np.max(mag_sobel)).astype(np.uint8)
@@ -147,10 +147,10 @@ def dir_sobel_th(img, ksize=31, thresh=(0.5,1.5)):
     # Grayscale image
     # NOTE: we already saw that standard grayscaling lost color information for the lane lines
     # Explore gradients in other colors spaces / color channels to see what might work better
-    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    #gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 
-    abs_sobelx = np.absolute(cv2.Sobel(gray, cv2.CV_64F, 1, 0)) # Take the derivative in x
-    abs_sobely = np.absolute(cv2.Sobel(gray, cv2.CV_64F, 0, 1)) # Take the derivative in y
+    abs_sobelx = np.absolute(cv2.Sobel(img, cv2.CV_64F, 1, 0)) # Take the derivative in x
+    abs_sobely = np.absolute(cv2.Sobel(img, cv2.CV_64F, 0, 1)) # Take the derivative in y
     dir_sobel = np.arctan2(abs_sobely, abs_sobelx)
     
     # Thresholding
@@ -191,3 +191,12 @@ def rgb2lab(img):
 def rgb2hls(img):
     img_hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     return img_hls
+
+def combined_sobels(sx_binary, sy_binary, sxy_magnitude_binary, gray_img, kernel_size=3, angle_thres=(0, np.pi/2)):
+    sxy_direction_binary = dir_sobel_th(gray_img, ksize=kernel_size, thresh=angle_thres)
+    
+    combined = np.zeros_like(sxy_direction_binary)
+    # Sobel X returned the best output so we keep all of its results. We perform a binary and on all the other sobels    
+    combined[(sx_binary == 1) | ((sy_binary == 1) & (sxy_magnitude_binary == 1) & (sxy_direction_binary == 1))] = 1
+    
+    return combined
