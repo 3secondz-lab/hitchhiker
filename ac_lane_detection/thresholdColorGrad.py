@@ -188,6 +188,10 @@ def rgb2lab(img):
     img_lab = cv2.cvtColor(img, cv2.COLOR_RGB2Lab)
     return img_lab
 
+def rgb2luv(img):
+    img_luv = cv2.cvtColor(img, cv2.COLOR_RGB2LUV)
+    return img_luv
+
 def rgb2hls(img):
     img_hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     return img_hls
