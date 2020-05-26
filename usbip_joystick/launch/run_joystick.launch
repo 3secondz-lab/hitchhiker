@@ -1,0 +1,20 @@
+<!-- joystick launch file -->
+<launch>
+
+  <arg name="topic_name" default="/matlab_controller" />
+  <arg name="freq_sub" default="200" />
+  <arg name="host" default="localhost" />
+  <arg name="port" default="13240" />
+
+  <node name="joystick" pkg="usbip_joystick" type="joystick.py" required="true" output="screen">
+
+    <!-- Parameters -->
+    <param name="topic_name" value="$(arg topic_name)" type="str" />
+    <param name="freq_sub" value="$(arg freq_sub)" type="int" />
+    <param name="host" value="$(arg host)" type="str" />
+    <param name="port" value="$(arg port)" type="int" />
+
+  </node>
+
+</launch>
+
