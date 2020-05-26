@@ -15,12 +15,12 @@ from findLane import mask_roi, mask_window, find_window_centroids, show_window_c
 #file_path = "../../ac_laguna_mx5_2.mp4"
 file_path = "../../ac_inje_86_2.mp4"
 cap = cv2.VideoCapture(file_path)
-#threshold = [88, 255]#hls
-threshold = [155, 255]#lab
+thresh = [88, 255]#hls
+#thresh = [155, 255]#lab
 kernel = 9
 direction = [0.7, 1.3]
-#mode = 'adjust'
-mode = 'fixed'
+mode = 'adjust'
+#mode = 'fixed'
 #crop = [484,812]#laguna seca
 crop = [240,600]#inje
 
@@ -33,54 +33,54 @@ while(cap.isOpened()):
 
         if (mode == 'adjust'):
             key = cv2.waitKey(10)
-            threshold, direction, kernel = adjust_threshold(key, threshold, direction, kernel)
+            thresh, direction, kernel = adjust_threshold(key, thresh, direction, kernel)
 
-            threshold_hls = threshold
+            thresh_hls = thresh
             #direction_hls = direction
             #kernel_hls = kernel
 
-            threshold_lab = threshold
+            thresh_lab = thresh
             #direction_hls = direction
             #kernel_hls = kernel
 
-            threshold_abx = threshold
+            thresh_abx = thresh
             #direction_abx = direction
             kernel_abx = kernel
 
-            threshold_aby = threshold
+            thresh_aby = thresh
             #direction_aby = direction
             kernel_aby = kernel
 
-            threshold_mag = threshold
+            thresh_mag = thresh
             #direction_mag = direction
             kernel_mag = kernel
 
-            #threshold_dir = threshold
+            #thresh_dir = thresh
             direction_dir = direction
             kernel_dir = kernel
 
         else:
-            threshold_hls = (88,255)
+            thresh_hls = (88,255)
             #direction_hls = direction
             #kernel_hls = kernel
 
-            threshold_lab = (155,255)
+            thresh_lab = (155,255)
             #direction_hls = direction
             #kernel_hls = kernel
 
-            threshold_abx = (20,120)
+            thresh_abx = (20,120)
             #direction_abx = direction
             kernel_abx = 15
 
-            threshold_aby = (20,120)
+            thresh_aby = (20,120)
             #direction_aby = direction
             kernel_aby = 15
 
-            threshold_mag = (80,200)
+            thresh_mag = (80,200)
             #direction_mag = direction
             kernel_mag = 15
 
-            #threshold_dir = threshold
+            #thresh_dir = thresh
             direction_dir = (np.pi/4, np.pi/2)
             kernel_dir = 15
 
@@ -92,16 +92,22 @@ while(cap.isOpened()):
 
         #img_roi = mask_roi(img)
         img_roi = img[crop[0]:crop[1],:]
-        img_hls = hls_select(img_roi, ch='s', thresh=threshold_hls)
-        img_lab = lab_select(img_roi, ch='l', thresh=threshold_lab)*255
-        #img_lab = rgb2lab(img_roi)[:,:,0]
-        img_grad_abx = abs_sobel_th(img_lab, orient='x', ksize=kernel_abx, thresh=threshold_abx)
-        img_grad_aby = abs_sobel_th(img_lab, orient='y', ksize=kernel_aby, thresh=threshold_aby)
-        img_grad_mag = mag_sobel_th(img_lab, ksize=kernel_mag, thresh=threshold_mag)
+        img_resized = cv2.resize(img_roi, (640,180), interpolation = cv2.INTER_AREA)
+        #img_blurred = cv2.GaussianBlur(img_resized,(kernel,kernel),3)
+        img_blurred = cv2.GaussianBlur(img_resized,(kernel,kernel),3)
+        #img_hls = hls_select(img_blurred, ch='s', thresh=thresh_hls)*255
+        img_hls = rgb2hls(img_resized)[:,:,2]
+        #img_lab = lab_select(img_blurred, ch='l', thresh=thresh_lab)*255
+        img_lab = rgb2lab(img_resized)[:,:,0]
+        #img_lab = img_hls
+        img_grad_abx = abs_sobel_th(img_lab, orient='x', ksize=kernel_abx, thresh=thresh_abx)
+        img_grad_aby = abs_sobel_th(img_lab, orient='y', ksize=kernel_aby, thresh=thresh_aby)
+        img_grad_mag = mag_sobel_th(img_lab, ksize=kernel_mag, thresh=thresh_mag)
         img_combined = combined_sobels(img_grad_abx, img_grad_aby, img_grad_mag, img_lab, kernel_size=15, angle_thres=(np.pi/4, np.pi/2))
-        #img_wy = hls_wy_bin(img_roi)
+        img_wy = hls_wy_bin(img_roi)
         img_bin = np.zeros_like(img_combined)
         img_bin[(img_combined == 1) | (img_hls == 1)] = 1
+        #img_bin[(img_combined == 1) | (img_hls == 1)] = 1
 
 
         copy_combined = np.copy(img_bin)
@@ -111,9 +117,52 @@ while(cap.isOpened()):
         pts = np.array([[210,bottom_px],[595,240],[690,240], [1110, bottom_px]], np.int32)
         cv2.polylines(copy_combined,[pts],True,(255,255,255), 10)
 
-        img_fin = copy_combined
-        cv2.imshow("test", img_fin*255)
+        #img_fin = img_combined
+        #img_fin = img_bin
+        #img_fin = img_roi
+        #img_fin = cv2.vconcat(cv2.vconcat(cv2.vconcat(img_roi,img_hls), img_lab),img_combined)
+        #img_fin = cv2.vconcat(img_roi,img_hls)
+        #img_fin=img_resized
 
+        #cv2.imshow("fin", img_fin)
+
+        #cv2.imshow("test", img_fin*255)
+
+        
+
+        '''
+        #img_test = np.zeros(180*2, 640*2, 3)
+        img_test = np.zeros_like(img_roi)
+        img_test[:180,:640,0:3]=img_resized
+        img_test[:180,640:1280,0:3]=img_blurred
+        
+        img_test[180:360,:640,0]=img_hls
+        img_test[180:360,:640,1]=img_hls
+        img_test[180:360,:640,2]=img_hls
+        img_test[180:360,640:1280,0]=img_lab
+        img_test[180:360,640:1280,1]=img_lab
+        img_test[180:360,640:1280,2]=img_lab
+        '''
+
+        img_test = np.zeros_like(img)
+        img_test[:180,:640,:]=img_resized
+        img_test[:180,640:1280,:]=img_blurred
+        
+        img_test[180:360,:640,:]=cv2.cvtColor(threshold(rgb2hls(img_resized)[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[360:540,:640,:]=cv2.cvtColor(threshold(rgb2hls(img_resized)[:,:,1],thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[540:720,:640,:]=cv2.cvtColor(threshold(rgb2hls(img_resized)[:,:,2],thresh)*255,cv2.COLOR_GRAY2RGB)
+
+        img_test[180:360,640:1280,:]=cv2.cvtColor(threshold(rgb2lab(img_resized)[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[360:540,640:1280,:]=cv2.cvtColor(threshold(rgb2lab(img_resized)[:,:,1],thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[540:720,640:1280,:]=cv2.cvtColor(threshold(rgb2lab(img_resized)[:,:,2],thresh)*255,cv2.COLOR_GRAY2RGB)
+
+        cv2.imshow("test", img_test)
+
+
+
+
+        
+        
 
 
     else:
