@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 from adjustThreshold import adjust_threshold
-from thresholdColorGrad import combined_sobels, rgb2luv, rgb2lab, rgb2hls, hls_wy_bin, threshold, hls_select, lab_select, luv_select, abs_sobel_th, mag_sobel_th, dir_sobel_th
+from thresholdColorGrad import line_wr_bin, combined_sobels, rgb2luv, rgb2lab, rgb2hls, hls_wy_bin, threshold, hls_select, lab_select, luv_select, abs_sobel_th, mag_sobel_th, dir_sobel_th
 from findLane import mask_roi, mask_window, find_window_centroids, show_window_centroids, polyfit_window, measure_curve_r, get_offset
 
 #file_path = "../../ac_laguna_mx5_2.mp4"
@@ -105,7 +105,7 @@ while(cap.isOpened()):
         img_grad_aby = abs_sobel_th(img_lab, orient='y', ksize=kernel_aby, thresh=thresh_aby)
         img_grad_mag = mag_sobel_th(img_lab, ksize=kernel_mag, thresh=thresh_mag)
         img_combined = combined_sobels(img_grad_abx, img_grad_aby, img_grad_mag, img_lab, kernel_size=15, angle_thres=(np.pi/4, np.pi/2))
-        img_wy = hls_wy_bin(img_roi)
+        img_wy = line_wr_bin(img_roi)
         img_bin = np.zeros_like(img_combined)
         img_bin[(img_combined == 1) | (img_hls == 1)] = 1
         #img_bin[(img_combined == 1) | (img_hls == 1)] = 1
@@ -127,7 +127,7 @@ while(cap.isOpened()):
 
         #cv2.imshow("fin", img_fin)
 
-        #cv2.imshow("test", img_fin*255)
+        #cv2.imshow("fin", img_fin*255)
 
         
 
@@ -149,6 +149,7 @@ while(cap.isOpened()):
         img_test[:180,:640,:]=img_resized
         img_test[:180,640:640*2,:]=img_blurred
         
+        '''
         img_test[180:180*2,:640,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
         img_test[180*2:180*3,:640,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,1],thresh)*255,cv2.COLOR_GRAY2RGB)
         img_test[180*3:180*4,:640,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh)*255,cv2.COLOR_GRAY2RGB)
@@ -160,6 +161,9 @@ while(cap.isOpened()):
         img_test[180:180*2,640*2:640*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
         img_test[180*2:180*3,640*2:640*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,1],thresh)*255,cv2.COLOR_GRAY2RGB)
         img_test[180*3:180*4,640*2:640*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,2],thresh)*255,cv2.COLOR_GRAY2RGB)
+        '''
+
+        img_test[:180,640*2:640*3,:] = cv2.cvtColor(line_wr_bin(img_blurred)*255, cv2.COLOR_GRAY2RGB)
 
 
         cv2.imshow("test", img_test)

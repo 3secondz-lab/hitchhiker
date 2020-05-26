@@ -181,6 +181,15 @@ def hls_wy_bin(img):
     return img_hls_white_yellow_bin
 
 
+def line_wr_bin(img):
+    img_b = threshold(rgb2lab(img)[:,:,2], thresh=(94,255))
+    img_u = threshold(rgb2luv(img)[:,:,1], thresh=(64,255))
+    img_bin = np.zeros_like(img_b)
+    img_bin[(img_b == 1) | (img_u == 1)] = 1
+    return img_bin
+
+
+
 #def combine_imgbin(img, ks=3, orient='x', th_sb=(0,255), th_r=(0,255), th_g=(0,255), th_b=(0,255)):
     
 
