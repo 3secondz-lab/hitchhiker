@@ -29,7 +29,7 @@ matlab_pub = rospublisher(topic_name, 'std_msgs/Float64MultiArray');
         try
         msg = rosmessage('std_msgs/Float64MultiArray');
 %         Head_code_JH;
-        head_code_0414;
+        head_code_0526;
         msg.Data = [u_steer, u_acc, u_brk];
         msg.Layout.Dim = rosmessage('std_msgs/MultiArrayDimension');
         msg.Layout.Dim.Label = 'val';

@@ -56,6 +56,8 @@ try
         cam_right_x = data.CamRightX;
         cam_right_y = data.CamRightY;
         
+        disp(Steer);
+        
         pause(0.01);
     end
 catch

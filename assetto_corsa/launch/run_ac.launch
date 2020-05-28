@@ -33,5 +33,8 @@
   <!-- rosbridge websocket server -->
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
 
+  <!-- hid-joystick script -->
+  <node name="hid_joystick" pkg="assetto_corsa" type="joystick_async.sh" />
+
 </launch>
 

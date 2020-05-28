@@ -10,3 +10,4 @@ usb_cam/
 imu_publisher
 webviz_test
 /CMakeLists.txt
+.vscode/

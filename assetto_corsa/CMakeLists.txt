@@ -176,6 +176,7 @@ include_directories(
    src/ac_sub.py
    src/translate.py
    src/ac_parseai.py
+   src/ac_csv_writer.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
  )
 
