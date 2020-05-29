@@ -16,7 +16,7 @@ def threshold(img, thresh=(0,255)):
     
 #fefaeaf:qqfqwefqwipjfqweipjfipqwejfi Define a function that thresholds the selected channel of HLS
 # Use exclusive lower bound (>) and inclusive upper (<=)
-def hls_select(img, ch='s', thresh=(115, 255)):
+def hls_select(img, ch='s', thresh=(64, 255)):
     # 1) Convert to HLS color space
     img_hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
     # 2) Select a channel
@@ -33,7 +33,7 @@ def hls_select(img, ch='s', thresh=(115, 255)):
 
 # Define a function that thresholds the selected channel of Lab
 # Use exclusive lower bound (>) and inclusive upper (<=)
-def lab_select(img, ch='b', thresh=(0, 255)):
+def lab_select(img, ch='b', thresh=(94, 255)):
     # 1) Convert to Lab color space
     img_lab = cv2.cvtColor(img, cv2.COLOR_RGB2Lab)
     # 2) Select a channel
@@ -50,7 +50,7 @@ def lab_select(img, ch='b', thresh=(0, 255)):
 
 # Define a function that thresholds the S-channel of HLS
 # Use exclusive lower bound (>) and inclusive upper (<=)
-def luv_select(img, ch='l', thresh=(0, 255)):
+def luv_select(img, ch='u', thresh=(92, 255)):
     # 1) Convert to HLS color space
     img_luv = cv2.cvtColor(img, cv2.COLOR_RGB2Luv)
     # 2) Select a channel
@@ -182,16 +182,29 @@ def hls_wy_bin(img):
 
 
 def line_wr_bin(img):
-    img_b = threshold(rgb2lab(img)[:,:,2], thresh=(94,255))
-    img_u = threshold(rgb2luv(img)[:,:,1], thresh=(64,255))
+    #img_b = 1-threshold(img=rgb2lab(img)[:,:,2], thresh=(94,255))
+    img_b = 1-lab_select(img)
+    #img_u = threshold(img=rgb2luv(img)[:,:,1], thresh=(92,255))
+    img_u = luv_select(img)
     img_bin = np.zeros_like(img_b)
     img_bin[(img_b == 1) | (img_u == 1)] = 1
     return img_bin
 
 
+def combined_color(img):
+    img_s = hls_select(img)
+    img_bin = np.zeros_like(img_s)
+    img_bin[(img_s == 1) | line_wr_bin(img) == 1] = 1
+    return img_bin
+
+
+
 
 #def combine_imgbin(img, ks=3, orient='x', th_sb=(0,255), th_r=(0,255), th_g=(0,255), th_b=(0,255)):
-    
+
+def rgb2gray(img):
+    img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    return img_gray
 
 def rgb2lab(img):
     img_lab = cv2.cvtColor(img, cv2.COLOR_RGB2Lab)
