@@ -219,10 +219,11 @@ def rgb2hls(img):
     return img_hls
 
 def combined_sobels(sx_binary, sy_binary, sxy_magnitude_binary, gray_img, kernel_size=3, angle_thres=(0, np.pi/2)):
-    sxy_direction_binary = dir_sobel_th(gray_img, ksize=kernel_size, thresh=angle_thres)
-    
-    combined = np.zeros_like(sxy_direction_binary)
+    #sxy_direction_binary = dir_sobel_th(gray_img, ksize=kernel_size, thresh=angle_thres)
+    #combined = np.zeros_like(sxy_direction_binary)
+    combined = np.zeros_like(sxy_magnitude_binary)
     # Sobel X returned the best output so we keep all of its results. We perform a binary and on all the other sobels    
-    combined[(sx_binary == 1) | ((sy_binary == 1) & (sxy_magnitude_binary == 1) & (sxy_direction_binary == 1))] = 1
+    #combined[(sx_binary == 1) | ((sy_binary == 1) & (sxy_magnitude_binary == 1) & (sxy_direction_binary == 1))] = 1
+    combined[(sx_binary == 1) | ((sy_binary == 1) & (sxy_magnitude_binary == 1) )] = 1
     
     return combined
