@@ -24,9 +24,24 @@ mode = 'adjust'
 #mode = 'fixed'
 #crop = [484,812]#laguna seca
 crop = [240,600]#inje
+font = cv2.FONT_HERSHEY_DUPLEX
 
 if (cap.isOpened() == False):
     print("Error opening video stream or file")
+
+if (mode == 'adjust'):
+    guide1 = "[Adjust mode]"
+    guide2 = "TY:-/+ lower threshold(0~upper), UI: -/+ upper threshold(lower~255)"
+    guide3 = "GH:-/+ lower direction(-pi~upper), JK:-/+ upper direction(lower~pi)"
+    guide4 = "BN:-/+ kernel size"
+else:
+    guide1 = "[Adjust mode]"
+    guide2 = "TY:-/+ lower threshold(0~upper), UI: -/+ upper threshold(lower~255)"
+    guide3 = "GH:-/+ lower direction(-pi~upper), JK:-/+ upper direction(lower~pi)"
+    guide4 = "BN:-/+ kernel size"
+
+
+
 
 while(cap.isOpened()):
     ret, img = cap.read()
@@ -63,6 +78,10 @@ while(cap.isOpened()):
             #thresh_dir = thresh
             direction_dir = direction
             kernel_dir = kernel
+            guide1 = "[Adjust mode]"
+            guide2 = "TY:-/+ lower threshold(0~upper), UI: -/+ upper threshold(lower~255)"
+            guide3 = "GH:-/+ lower direction(-pi~upper), JK:-/+ upper direction(lower~pi)"
+            guide4 = "BN:-/+ kernel size    "
 
         else:
             thresh_hls = (64,255)
@@ -92,6 +111,12 @@ while(cap.isOpened()):
             #thresh_dir = thresh
             direction_dir = (np.pi/4, np.pi/2)
             kernel_dir = 11
+
+            guide1 = "[Fixed mode]"
+            guide2 = "Color: "
+            guide3 = "Gradient "
+            guide4 = "Kernel: "
+
 
 
         #if key == 27: # ESC
@@ -152,12 +177,12 @@ while(cap.isOpened()):
         img_test[180*1:180*2,640*1:640*2,2]=img_lab
         '''
 
-        img_test = np.zeros((180*4,640*3,3),np.uint8)
+        img_test = np.zeros((180*4+100,640*3,3),np.uint8)
         img_test[180*0:180*1,640*0:640*1,:]=img_resized
         img_test[180*0:180*1,640*1:640*2,:]=img_blurred
         img_test[180*0:180*1,640*2:640*3,:] = cv2.cvtColor(combined_color(img_blurred)*255, cv2.COLOR_GRAY2RGB)
         
-        '''
+        '''  
         #HLS, Lab, LUV analysis
         img_test[180*1:180*2,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,0],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
         img_test[180*2:180*3,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,1],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
@@ -173,13 +198,13 @@ while(cap.isOpened()):
         
         
         #Red&White corner line analysis
-        #img_test[180*0:180*1,640*2:640*3,:] = cv2.cvtColor(line_wr_bin(img_blurred)*255, cv2.COLOR_GRAY2RGB)
-        #img_test[180*1:180*2,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        #img_test[180*1:180*2,640*1:640*2,:]=cv2.cvtColor((1-threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab))*255,cv2.COLOR_GRAY2RGB)
-        #img_test[180*1:180*2,640*2:640*3,:]=cv2.cvtColor((threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*q255,cv2.COLOR_GRAY2RGB)
-        #img_test[180*2:180*3,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh)*255,cv2.COLOR_GRAY2RGB)
-        #img_test[180*2:180*3,640*1:640*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
-        #img_test[180*2:180*3,640*2:640*3,:]=cv2.cvtColor((1-threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
+        img_test[180*0:180*1,640*2:640*3,:] = cv2.cvtColor(line_wr_bin(img_blurred)*255, cv2.COLOR_GRAY2RGB)
+        img_test[180*1:180*2,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
+        img_test[180*1:180*2,640*1:640*2,:]=cv2.cvtColor((1-threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab))*255,cv2.COLOR_GRAY2RGB)
+        img_test[180*1:180*2,640*2:640*3,:]=cv2.cvtColor((threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
+        img_test[180*2:180*3,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[180*2:180*3,640*1:640*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[180*2:180*3,640*2:640*3,:]=cv2.cvtColor((1-threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
         '''
 
 
@@ -192,14 +217,23 @@ while(cap.isOpened()):
         img_test[180*2:180*3,640*0:640*1,:] = cv2.cvtColor(abs_sobel_th(img_hls, orient='x', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
         img_test[180*2:180*3,640*1:640*2,:] = cv2.cvtColor(abs_sobel_th(img_hls, orient='y', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
         img_test[180*2:180*3,640*2:640*3,:] = cv2.cvtColor(mag_sobel_th(img_hls, ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
-
         
 
 
 
-
-
+        if (mode == 'adjust'):
+            cv2.putText(img_test, (guide1), (50, 180*4+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide2), (50, 180*4+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide3), (50, 180*4+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide4) + "threshold =" + str(thresh) + ", direction =" + str(direction) + ", kernel =" + str(kernel), (50, 180*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        else:
+            cv2.putText(img_test, (guide1), (50, 180*4+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide2 + "th_hls= " + str(thresh_hls )+ ", th_lab= " + str(thresh_lab) + ", th_luv= " + str(thresh_luv)), (50, 180*4+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide3 + "th_abx= " + str(thresh_abx) + ", th_aby= " + str(thresh_aby) + ", th_mag= " + str(thresh_mag)), (50, 180*4+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide4 + "th_dir= " + str(direction_dir)), (50, 180*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+        
         cv2.imshow("test", img_test)
+        
 
         ##Note##
         #kernel = 11, thresh = 64 good for S in HLS --> Grass/road separation
