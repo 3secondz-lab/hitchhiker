@@ -224,6 +224,6 @@ def combined_sobels(sx_binary, sy_binary, sxy_magnitude_binary, gray_img, kernel
     combined = np.zeros_like(sxy_magnitude_binary)
     # Sobel X returned the best output so we keep all of its results. We perform a binary and on all the other sobels    
     #combined[(sx_binary == 1) | ((sy_binary == 1) & (sxy_magnitude_binary == 1) & (sxy_direction_binary == 1))] = 1
-    combined[(sx_binary == 1) | ((sy_binary == 1) & (sxy_magnitude_binary == 1) )] = 1
+    combined[(sx_binary == 1) | ((sy_binary == 1) | (sxy_magnitude_binary == 1) )] = 1
     
     return combined
