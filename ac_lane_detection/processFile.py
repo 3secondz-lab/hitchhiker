@@ -11,6 +11,7 @@ import cv2
 from adjustThreshold import adjust_threshold
 from thresholdColorGrad import combined_color, line_wr_bin, combined_sobels, rgb2gray, rgb2luv, rgb2lab, rgb2hls, hls_wy_bin, threshold, hls_select, lab_select, luv_select, abs_sobel_th, mag_sobel_th, dir_sobel_th
 from findLane import mask_roi, mask_window, find_window_centroids, show_window_centroids, polyfit_window, measure_curve_r, get_offset
+from transformImage import undistort, corners_unwarp
 
 #file_path = "../../ac_laguna_mx5_2.mp4"
 file_path = "../../ac_inje_86_2.mp4"
@@ -24,6 +25,7 @@ mode = 'adjust'
 #mode = 'fixed'
 #crop = [484,812]#laguna seca
 crop = [240,600]#inje
+
 font = cv2.FONT_HERSHEY_DUPLEX
 
 if (cap.isOpened() == False):
@@ -231,7 +233,15 @@ while(cap.isOpened()):
         
         img_test[180*3:180*4,640*1:640*2,:] = img_copy
 
-        #img_masked = cv2.bitwise_and(img, mask)
+        '''
+        src_pts = pts.astype(np.float32)
+        dst_pts = np.array([[20,bottom_px], [20,0], [620,0], [620, bottom_px]], np.float32)
+        img_pers = corners_unwarp(np.copy(img_bin)*255, src_pts, dst_pts)
+        #print(img_pers.shape)
+        img_test[180*3:180*4,640*2:640*3,:] = img_pers
+        '''
+        
+
         
 
 
