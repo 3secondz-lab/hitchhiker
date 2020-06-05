@@ -228,15 +228,15 @@ while(cap.isOpened()):
         (bottom_px, right_px) = (img_copy.shape[0] - 1, img_copy.shape[1] - 1) 
         #(bottom_px, right_px) = (180*2 - 1, 640*2 - 1)
         print(bottom_px, right_px)
-        #pts = np.array([[0,bottom_px-120],[280,10],[360,10], [640, bottom_px-120]], np.int32)
-        pts = np.array([[0,bottom_px-120],[280,10],[360,10], [640, bottom_px-120]], np.int32)
+        #pts = np.array([[0,bottom_px-120],[280,10],[360,10], [640, bottom_px-120]], np.int32)#LB, LT, RT, RB, [x,y]
+        pts = np.array([[0,bottom_px-110],[240,30],[400,30], [640, bottom_px-110]], np.int32)
         cv2.polylines(img_copy,[pts],True,(255,0,0), 3)
         
         img_test[180*3:180*4,640*1:640*2,:] = img_copy
 
         
         src_pts = pts.astype(np.float32)
-        dst_pts = np.array([[10,bottom_px-10], [10,10], [630,10], [630, bottom_px-10]], np.float32)
+        dst_pts = np.array([[50,bottom_px-10], [50,10], [590,10], [590, bottom_px-10]], np.float32)
         img_pers, Mpers, Minvs = corners_unwarp(np.copy(img_bin)*255, src_pts, dst_pts)
         #print(img_pers)
         img_test[180*3:180*4,640*2:640*3,:] = cv2.cvtColor(img_pers, cv2.COLOR_GRAY2RGB)
