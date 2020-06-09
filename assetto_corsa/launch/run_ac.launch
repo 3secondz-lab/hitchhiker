@@ -1,9 +1,11 @@
 <!-- assetto_corsa launch file -->
 <launch>
 
+  <arg name="run_usbip" default="False" />
+
   <!-- ac_pub arguments -->
   <arg name="ac_pub_freq" default="500" />
-  <arg name="ac_pub_host" default="192.168.0.48" />
+  <arg name="ac_pub_host" default="localhost" />
   <arg name="ac_pub_port" default="9996" />
 
   <!-- ac_joystick arguments -->
@@ -35,6 +37,12 @@
 
   <!-- hid-joystick script -->
   <node name="hid_joystick" pkg="assetto_corsa" type="joystick_async.sh" />
+
+  <!-- webviz -->
+  <node name="run_webviz" pkg="assetto_corsa" type="run_webviz.sh" output="screen" />
+
+  <!-- usbip -->
+  <node if="$(arg run_usbip)" name="usbip" pkg="assetto_corsa" type="run_usbip.sh" />
 
 </launch>
 
