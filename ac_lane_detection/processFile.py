@@ -14,7 +14,8 @@ from findLane import mask_roi, mask_window, find_window_centroids, show_window_c
 from transformImage import undistort, corners_unwarp
 
 #file_path = "../../ac_laguna_mx5_2.mp4"
-file_path = "../../ac_inje_86_2.mp4"
+#file_path = "../../ac_inje_86_2.mp4"
+file_path = "../../ac_inje_lancer_1_2.mp4"
 cap = cv2.VideoCapture(file_path)
 thresh = [64, 255]#hls
 #thresh = [94, 255]#lab
@@ -23,8 +24,17 @@ kernel = 7
 direction = [0.7, 1.3]
 mode = 'adjust'
 #mode = 'fixed'
-#crop = [484,812]#laguna seca
-crop = [240,600]#inje
+#crop = [484,812,0,1280]#laguna seca - top, bottom, left, right
+#crop = [240,600,0,1280]#inje_86 - top, bottom, left, right
+#[h_img, w_img] = [360, 1280]#inje_86
+crop = [60,310,220,1060]#inje_lancer - top, bottom, left, right
+[h_cropped, w_cropped] = [crop[1]-crop[0], crop[3]-crop[2]]#inje_lancer
+resize_rate = 0.5
+#print(h_cropped, w_cropped)
+[h_resized, w_resized] = [int(h_cropped*resize_rate), int(w_cropped*resize_rate)]
+[h_src_offset, w_src_offset] = [30,175]
+[h_dst_offset, w_dst_offset] = [20,60]
+
 
 font = cv2.FONT_HERSHEY_DUPLEX
 
@@ -127,8 +137,10 @@ while(cap.isOpened()):
 
 
         #img_roi = mask_roi(img)
-        img_roi = img[crop[0]:crop[1],:]
-        img_resized = cv2.resize(img_roi, (640,180), interpolation = cv2.INTER_AREA)
+        img_roi = img[crop[0]:crop[1],crop[2]:crop[3]]
+        #print(img_roi.shape)
+        #img_resized = cv2.resize(img_roi, (w_resized,h_resized), interpolation = cv2.INTER_AREA)
+        img_resized = cv2.resize(img_roi, (w_resized,h_resized), interpolation = cv2.INTER_AREA)
         img_blurred = cv2.GaussianBlur(img_resized,(kernel,kernel),25)
         #img_blurred = cv2.GaussianBlur(img_resized,(15,15),kernel)
         #img_hls = hls_select(img_blurred, ch='s', thresh=thresh_hls)*255
@@ -150,9 +162,9 @@ while(cap.isOpened()):
 
         '''
         copy_combined = np.copy(img_bin)
-        #print(copy_combined.shape[0], copy_combined.shape[1])#180*2, 640*2
+        #print(copy_combined.shape[0], copy_combined.shape[1])#h_resized*2, w_resized*2
         #(bottom_px, right_px) = (copy_combined.shape[0] - 1, copy_combined.shape[1] - 1) 
-        (bottom_px, right_px) = (180*2 - 1, 640*2 - 1) 
+        (bottom_px, right_px) = (h_resized*2 - 1, w_resized*2 - 1) 
         pts = np.array([[210,bottom_px],[595,240],[690,240], [1110, bottom_px]], np.int32)
         cv2.polylines(copy_combined,[pts],True,(255,255,255), 10)
         '''
@@ -169,82 +181,84 @@ while(cap.isOpened()):
         
 
         '''
-        #img_test = np.zeros((180*2, 640*2, 3), np.uint8)
+        #img_test = np.zeros((h_resized*2, w_resized*2, 3), np.uint8)
         img_test = np.zeros_like(img_roi)
-        img_test[180*0:180*1,640*0:640*1,0:3]=img_resized
-        img_test[180*0:180*1,640*1:640*2,0:3]=img_blurred
+        img_test[h_resized*0:h_resized*1,w_resized*0:w_resized*1,0:3]=img_resized
+        img_test[h_resized*0:h_resized*1,w_resized*1:w_resized*2,0:3]=img_blurred
         
-        img_test[180*1:180*2,640*0:640*1,0]=img_hls
-        img_test[180*1:180*2,640*0:640*1,1]=img_hls
-        img_test[180*1:180*2,640*0:640*1,2]=img_hls
-        img_test[180*1:180*2,640*1:640*2,0]=img_lab
-        img_test[180*1:180*2,640*1:640*2,1]=img_lab
-        img_test[180*1:180*2,640*1:640*2,2]=img_lab
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,0]=img_hls
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,1]=img_hls
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,2]=img_hls
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,0]=img_lab
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,1]=img_lab
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,2]=img_lab
         '''
 
-        img_test = np.zeros((180*4+100,640*3,3),np.uint8)
-        img_test[180*0:180*1,640*0:640*1,:]=img_resized
-        img_test[180*0:180*1,640*1:640*2,:]=img_blurred
-        img_test[180*0:180*1,640*2:640*3,:] = cv2.cvtColor(combined_color(img_blurred)*255, cv2.COLOR_GRAY2RGB)
+        img_test = np.zeros((h_resized*4+100,w_resized*3,3),np.uint8)
+        img_test[h_resized*0:h_resized*1,w_resized*0:w_resized*1,:]=img_resized
+        img_test[h_resized*0:h_resized*1,w_resized*1:w_resized*2,:]=img_blurred
+        img_test[h_resized*0:h_resized*1,w_resized*2:w_resized*3,:] = cv2.cvtColor(combined_color(img_blurred)*255, cv2.COLOR_GRAY2RGB)
         
         '''  
         #HLS, Lab, LUV analysis
-        img_test[180*1:180*2,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,0],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,1],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*3:180*4,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,0],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,1],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
 
-        img_test[180*1:180*2,640*1:640*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,0],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*1:640*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,1],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*3:180*4,640*1:640*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,0],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,1],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
 
-        img_test[180*1:180*2,640*2:640*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,0],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*2:640*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*3:180*4,640*2:640*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,2],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,0],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,2],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
         
         
         #Red&White corner line analysis
-        img_test[180*0:180*1,640*2:640*3,:] = cv2.cvtColor(line_wr_bin(img_blurred)*255, cv2.COLOR_GRAY2RGB)
-        img_test[180*1:180*2,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*1:180*2,640*1:640*2,:]=cv2.cvtColor((1-threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab))*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*1:180*2,640*2:640*3,:]=cv2.cvtColor((threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*0:640*1,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*1:640*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*2:640*3,:]=cv2.cvtColor((1-threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*0:h_resized*1,w_resized*2:w_resized*3,:] = cv2.cvtColor(line_wr_bin(img_blurred)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:]=cv2.cvtColor((1-threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab))*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:]=cv2.cvtColor((threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:]=cv2.cvtColor((1-threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
         '''
 
 
         
         #Gradient analysis
-        img_test[180*1:180*2,640*0:640*1,:] = cv2.cvtColor(abs_sobel_th(img_color, orient='x', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
-        img_test[180*1:180*2,640*1:640*2,:] = cv2.cvtColor(abs_sobel_th(img_color, orient='y', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
-        img_test[180*1:180*2,640*2:640*3,:] = cv2.cvtColor(mag_sobel_th(img_color, ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:] = cv2.cvtColor(abs_sobel_th(img_color, orient='x', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:] = cv2.cvtColor(abs_sobel_th(img_color, orient='y', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:] = cv2.cvtColor(mag_sobel_th(img_color, ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
 
-        img_test[180*2:180*3,640*0:640*1,:] = cv2.cvtColor(abs_sobel_th(img_hls, orient='x', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*1:640*2,:] = cv2.cvtColor(abs_sobel_th(img_hls, orient='y', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
-        img_test[180*2:180*3,640*2:640*3,:] = cv2.cvtColor(mag_sobel_th(img_hls, ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:] = cv2.cvtColor(abs_sobel_th(img_hls, orient='x', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:] = cv2.cvtColor(abs_sobel_th(img_hls, orient='y', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:] = cv2.cvtColor(mag_sobel_th(img_hls, ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
 
-        img_test[180*3:180*4,640*0:640*1,:] = cv2.cvtColor(img_bin*255, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:] = cv2.cvtColor(img_bin*255, cv2.COLOR_GRAY2RGB)
 
 
         #Perspective Transform analysis
         #img_copy = cv2.cvtColor(np.copy(img_bin)*255, cv2.COLOR_GRAY2RGB)
         img_copy = cv2.cvtColor(img_grad_mag*255, cv2.COLOR_GRAY2RGB)
         (bottom_px, right_px) = (img_copy.shape[0] - 1, img_copy.shape[1] - 1) 
-        #(bottom_px, right_px) = (180*2 - 1, 640*2 - 1)
+        #(bottom_px, right_px) = (h_resized*2 - 1, w_resized*2 - 1)
         print(bottom_px, right_px)
-        #pts = np.array([[0,bottom_px-120],[280,10],[360,10], [640, bottom_px-120]], np.int32)#LB, LT, RT, RB, [x,y]
-        pts = np.array([[0,bottom_px-110],[240,30],[400,30], [640, bottom_px-110]], np.int32)
+        #pts = np.array([[0,bottom_px-120],[280,10],[w_resized-280,10], [w_resized, bottom_px-120]], np.int32)#LB, LT, RT, RB, [x,y]
+        #pts = np.array([[0,bottom_px],[160,30],[w_resized-160,30], [w_resized, bottom_px]], np.int32)
+        pts = np.array([[0,bottom_px],[w_src_offset,h_src_offset],[w_resized-w_src_offset,h_src_offset], [w_resized, bottom_px]], np.int32)
         cv2.polylines(img_copy,[pts],True,(255,0,0), 3)
         
-        img_test[180*3:180*4,640*1:640*2,:] = img_copy
+        img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:] = img_copy
 
         
         src_pts = pts.astype(np.float32)
         #dst_pts = np.array([[50,bottom_px-10], [50,10], [590,10], [590, bottom_px-10]], np.float32)
-        dst_pts = np.array([[80,bottom_px-40], [80,40], [560,40], [560, bottom_px-40]], np.float32)
+        #dst_pts = np.array([[80,bottom_px-20], [80,20], [340,20], [340, bottom_px-20]], np.float32)
+        dst_pts = np.array([[w_dst_offset,bottom_px-h_dst_offset], [w_dst_offset,h_dst_offset], [w_resized-w_dst_offset,20], [w_resized-w_dst_offset, bottom_px-h_dst_offset]], np.float32)
         img_pers, Mpers, Minvs = corners_unwarp(np.copy(img_bin)*255, src_pts, dst_pts)
         #print(img_pers)
-        img_test[180*3:180*4,640*2:640*3,:] = cv2.cvtColor(img_pers, cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*2:w_resized*3,:] = cv2.cvtColor(img_pers, cv2.COLOR_GRAY2RGB)
         
         
 
@@ -253,15 +267,15 @@ while(cap.isOpened()):
 
 
         if (mode == 'adjust'):
-            cv2.putText(img_test, (guide1), (50, 180*4+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide2), (50, 180*4+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide3), (50, 180*4+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide4) + "threshold =" + str(thresh) + ", direction =" + str(direction) + ", kernel =" + str(kernel), (50, 180*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide1), (50, h_resized*4+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide2), (50, h_resized*4+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide3), (50, h_resized*4+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide4) + "threshold =" + str(thresh) + ", direction =" + str(direction) + ", kernel =" + str(kernel), (50, h_resized*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
         else:
-            cv2.putText(img_test, (guide1), (50, 180*4+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide2 + "th_hls= " + str(thresh_hls )+ ", th_lab= " + str(thresh_lab) + ", th_luv= " + str(thresh_luv)), (50, 180*4+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide3 + "th_abx= " + str(thresh_abx) + ", th_aby= " + str(thresh_aby) + ", th_mag= " + str(thresh_mag)), (50, 180*4+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide4 + "th_dir= " + str(direction_dir)), (50, 180*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide1), (50, h_resized*4+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide2 + "th_hls= " + str(thresh_hls )+ ", th_lab= " + str(thresh_lab) + ", th_luv= " + str(thresh_luv)), (50, h_resized*4+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide3 + "th_abx= " + str(thresh_abx) + ", th_aby= " + str(thresh_aby) + ", th_mag= " + str(thresh_mag)), (50, h_resized*4+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide4 + "th_dir= " + str(direction_dir)), (50, h_resized*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
         
         cv2.imshow("test", img_test)
         
