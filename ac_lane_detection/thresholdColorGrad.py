@@ -191,10 +191,21 @@ def line_wr_bin(img):
     return img_bin
 
 
+def line_rgw_bin(img):
+    img_r = threshold(img=img[:,:,0], thresh=(125,255))
+    img_g = threshold(img=img[:,:,1], thresh=(140,255))
+    img_w = 1-threshold(img=rgb2gray(img), thresh=(0,124))
+
+    img_bin = np.zeros_like(img_r)
+    img_bin[(img_r == 1) | (img_g == 1) | (img_w == 1)] = 1
+    return img_bin
+
+
 def combined_color(img):
     img_s = hls_select(img)
     img_bin = np.zeros_like(img_s)
-    img_bin[(img_s == 1) | line_wr_bin(img) == 1] = 1
+    #img_bin[(img_s == 1) | (line_wr_bin(img) == 1)] = 1
+    img_bin[(img_s == 1) | (line_wr_bin(img) == 1) | (line_rgw_bin(img) == 1)] = 1
     return img_bin
 
 

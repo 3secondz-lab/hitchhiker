@@ -9,7 +9,7 @@ import numpy as np
 import cv2
 
 from adjustThreshold import adjust_threshold
-from thresholdColorGrad import combined_color, line_wr_bin, combined_sobels, rgb2gray, rgb2luv, rgb2lab, rgb2hls, hls_wy_bin, threshold, hls_select, lab_select, luv_select, abs_sobel_th, mag_sobel_th, dir_sobel_th
+from thresholdColorGrad import combined_color, line_rgw_bin, line_wr_bin, combined_sobels, rgb2gray, rgb2luv, rgb2lab, rgb2hls, hls_wy_bin, threshold, hls_select, lab_select, luv_select, abs_sobel_th, mag_sobel_th, dir_sobel_th
 from findLane import mask_roi, mask_window, find_window_centroids, show_window_centroids, polyfit_window, measure_curve_r, get_offset
 from transformImage import undistort, corners_unwarp
 
@@ -32,7 +32,7 @@ crop = [60,310,220,1060]#inje_lancer - top, bottom, left, right
 resize_rate = 0.5
 #print(h_cropped, w_cropped)
 [h_resized, w_resized] = [int(h_cropped*resize_rate), int(w_cropped*resize_rate)]
-[h_src_offset, w_src_offset] = [30,175]
+[h_src_offset, w_src_offset] = [60,130]
 [h_dst_offset, w_dst_offset] = [20,60]
 
 
@@ -198,6 +198,25 @@ while(cap.isOpened()):
         img_test[h_resized*0:h_resized*1,w_resized*0:w_resized*1,:]=img_resized
         img_test[h_resized*0:h_resized*1,w_resized*1:w_resized*2,:]=img_blurred
         img_test[h_resized*0:h_resized*1,w_resized*2:w_resized*3,:] = cv2.cvtColor(combined_color(img_blurred)*255, cv2.COLOR_GRAY2RGB)
+
+        '''
+        #RGB analysis - R th = 125, W th = 190 , G th = 140, Gray th = 0~124
+        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:]=cv2.cvtColor(img_blurred[:,:,0],cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:]=cv2.cvtColor(img_blurred[:,:,1],cv2.COLOR_GRAY2RGB)
+        #img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:]=cv2.cvtColor(img_blurred[:,:,2],cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:]=cv2.cvtColor(rgb2gray(img_blurred),cv2.COLOR_GRAY2RGB)
+
+        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,1],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+        #img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,2],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+        img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh_lab)*255,cv2.COLOR_GRAY2RGB)
+
+        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:]=cv2.cvtColor(line_rgw_bin(img_blurred)*255,cv2.COLOR_GRAY2RGB)
+        #img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
+        #img_test[h_resized*3:h_resized*4,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,2],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
+        '''
+
+
         
         '''  
         #HLS, Lab, LUV analysis
@@ -239,8 +258,8 @@ while(cap.isOpened()):
 
 
         #Perspective Transform analysis
-        #img_copy = cv2.cvtColor(np.copy(img_bin)*255, cv2.COLOR_GRAY2RGB)
-        img_copy = cv2.cvtColor(img_grad_mag*255, cv2.COLOR_GRAY2RGB)
+        img_copy = cv2.cvtColor(np.copy(img_bin)*255, cv2.COLOR_GRAY2RGB)
+        #img_copy = cv2.cvtColor(img_grad_mag*255, cv2.COLOR_GRAY2RGB)
         (bottom_px, right_px) = (img_copy.shape[0] - 1, img_copy.shape[1] - 1) 
         #(bottom_px, right_px) = (h_resized*2 - 1, w_resized*2 - 1)
         print(bottom_px, right_px)
