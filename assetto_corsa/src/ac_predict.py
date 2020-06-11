@@ -1,16 +1,16 @@
-#!/usr/bin/python3
-"""
-    Assetto Corsa Velocity Prediction
-
-    Jinsun Park
-    (zzangjinsun@3secondz.com)
-"""
-
-
 import rospy
 from assetto_corsa.msg import ACRaw
 from helper import DataHelper
 
+from chpt_d1_3sec.test_model import Model
+
+# dataName = 'IJF_D1'.format(driverNum)  # cWindow [s], vWindow [s], vpWindow [s], cUnit [Hz], vUnit [Hz], vpUnit [Hz]
+dataName = 'IJF_D1'  # cWindow [s], vWindow [s], vpWindow [s], cUnit [Hz], vUnit [Hz], vpUnit [Hz]
+chpt_encC_path = './BEST_checkpoint_ENCC_{}.pth.tar'.format(dataName)
+chpt_encD_path = './BEST_checkpoint_ENCD_{}.pth.tar'.format(dataName)
+chpt_dec_path = './BEST_checkpoint_DEC_{}.pth.tar'.format(dataName)
+chpt_stat_path = './BEST_stat_{}.pickle'.format(dataName)
+testModel = Model(chpt_encC_path, chpt_encD_path, chpt_dec_path, chpt_stat_path)  # speed prediction에 사용할 model parameters
 
 def callback(data: ACRaw):
     global rate, freq_sub, t_accumulate, preview_dist, hist_speed
@@ -29,10 +29,25 @@ def callback(data: ACRaw):
     # input : curvature, speed, hist_speed
 
     # output : predicted speed
-    output = [1, 2, 3, 4, 5]
+    # output = [1, 2, 3, 4, 5]
+
+    preds, alphas_d, alphas_c = testModel.predict(curvature, speed, hist_speed)
+    # input : curvature (np.ndarray, shape: (len_c,)),
+    #         speed (np.float),
+    #         hist_speed (np.ndarray, shape: (len_d,), 0.05초 간격으로 과거 2초간 속력을 사용했었음)
+    # output : preds (torch.Tensor, shape: (1, 20), 0.1초 간격으로 2초앞까지의 예측 속력, [0][0]이 0.1초 후 예측 속력),
+    #          alphas_d (torch.Tensor, shape: (1, 20, len_d), 매 예측시 사용된 attention weight 값),
+    #          alphas_c (torch.Tensor, shape: (1, 20, len_c), 매 예측시 사용된 attention weight 값)
+
     ##### PREDICTION CODE HERE #####
 
-    rospy.loginfo(output)
+    print(preds)
+    print(alphas_d)
+    print(alphas_c)
+
+    # rospy.loginfo(preds)
+    # rospy.loginfo(alphas_d)
+    # rospy.loginfo(alphas_c)
 
     # Speed history
     hist_speed.append(speed)
