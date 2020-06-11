@@ -9,6 +9,7 @@
 import rospy
 import numpy as np
 import os
+import sys
 import pickle
 
 from assetto_corsa.msg import ACRaw
@@ -16,12 +17,14 @@ from helper import DataHelper
 
 from chpt_d1_3sec.test_model import Model
 
+path_chpt = os.path.dirname(os.path.abspath(__file__)) + '/chpt_d1_3sec'
+
 # dataName = 'IJF_D1'.format(driverNum)  # cWindow [s], vWindow [s], vpWindow [s], cUnit [Hz], vUnit [Hz], vpUnit [Hz]
 dataName = 'IJF_D1'  # cWindow [s], vWindow [s], vpWindow [s], cUnit [Hz], vUnit [Hz], vpUnit [Hz]
-chpt_encC_path = 'chpt_d1_3sec/BEST_checkpoint_ENCC_{}.pth.tar'.format(dataName)
-chpt_encD_path = 'chpt_d1_3sec/BEST_checkpoint_ENCD_{}.pth.tar'.format(dataName)
-chpt_dec_path = 'chpt_d1_3sec/BEST_checkpoint_DEC_{}.pth.tar'.format(dataName)
-chpt_stat_path = 'chpt_d1_3sec/BEST_stat_{}.pickle'.format(dataName)
+chpt_encC_path = '{}/BEST_checkpoint_ENCC_{}.pth.tar'.format(path_chpt, dataName)
+chpt_encD_path = '{}/BEST_checkpoint_ENCD_{}.pth.tar'.format(path_chpt, dataName)
+chpt_dec_path = '{}/BEST_checkpoint_DEC_{}.pth.tar'.format(path_chpt, dataName)
+chpt_stat_path = '{}/BEST_stat_{}.pickle'.format(path_chpt, dataName)
 print('Load model...')
 testModel = Model(chpt_encC_path, chpt_encD_path, chpt_dec_path, chpt_stat_path)  # speed prediction에 사용할 model parameters
 print('Load model finished.')
