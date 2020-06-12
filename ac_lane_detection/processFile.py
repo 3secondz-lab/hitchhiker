@@ -22,8 +22,8 @@ cap = cv2.VideoCapture(file_path)
 thresh = [64, 255]#hls
 kernel = 7
 direction = [0.7, 1.3]
-mode = 'adjust'
-#mode = 'fixed'
+#mode = 'adjust'
+mode = 'fixed'
 #crop = [484,812,0,1280]#laguna seca - top, bottom, left, right
 #crop = [240,600,0,1280]#inje_86 - top, bottom, left, right
 #[h_img, w_img] = [360, 1280]#inje_86
@@ -139,8 +139,6 @@ while(cap.isOpened()):
         img_roi = img[crop[0]:crop[1],crop[2]:crop[3]]
         img_resized = cv2.resize(img_roi, (w_resized,h_resized), interpolation = cv2.INTER_AREA)
         img_blurred = cv2.GaussianBlur(img_resized,(kernel,kernel),25)
-        img_hls = rgb2hls(img_blurred)[:,:,2]
-        img_lab = rgb2lab(img_blurred)[:,:,0]
         img_color = combined_color(img_blurred)
         img_grad_abx = abs_sobel_th(img_color, orient='x', ksize=kernel_abx, thresh=thresh_abx)
         img_grad_aby = abs_sobel_th(img_color, orient='y', ksize=kernel_aby, thresh=thresh_aby)
@@ -157,54 +155,6 @@ while(cap.isOpened()):
         img_test[h_resized*0:h_resized*1,w_resized*1:w_resized*2,:] = img_blurred
         img_test[h_resized*0:h_resized*1,w_resized*2:w_resized*3,:] = cv2.cvtColor(combined_color(img_blurred)*255, cv2.COLOR_GRAY2RGB)
 
-        '''
-        #RGB analysis - R th = 125, W th = 190 , G th = 140, Gray th = 0~124
-        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:]=cv2.cvtColor(img_blurred[:,:,0],cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:]=cv2.cvtColor(img_blurred[:,:,1],cv2.COLOR_GRAY2RGB)
-        #img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:]=cv2.cvtColor(img_blurred[:,:,2],cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:]=cv2.cvtColor(rgb2gray(img_blurred),cv2.COLOR_GRAY2RGB)
-
-        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,1],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        #img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,2],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-
-        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:]=cv2.cvtColor(line_rgw_bin(img_blurred)*255,cv2.COLOR_GRAY2RGB)
-        #img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        #img_test[h_resized*3:h_resized*4,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,2],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        '''
-
-
-        
-        '''  
-        #HLS, Lab, LUV analysis
-        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,0],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,1],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*3:h_resized*4,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-
-        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,0],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,1],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*3:h_resized*4,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab)*255,cv2.COLOR_GRAY2RGB)
-
-        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,0],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*3:h_resized*4,w_resized*2:w_resized*3,:]=cv2.cvtColor(threshold(rgb2luv(img_blurred)[:,:,2],thresh_luv)*255,cv2.COLOR_GRAY2RGB)
-        
-        
-        #Red&White corner line analysis
-        img_test[h_resized*0:h_resized*1,w_resized*2:w_resized*3,:] = cv2.cvtColor(line_wr_bin(img_blurred)*255, cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2hls(img_blurred)[:,:,2],thresh_hls)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:]=cv2.cvtColor((1-threshold(rgb2lab(img_blurred)[:,:,2],thresh_lab))*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*1:h_resized*2,w_resized*2:w_resized*3,:]=cv2.cvtColor((threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*0:w_resized*1,:]=cv2.cvtColor(threshold(rgb2gray(img_blurred),thresh)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*1:w_resized*2,:]=cv2.cvtColor(threshold(img_blurred[:,:,0],thresh)*255,cv2.COLOR_GRAY2RGB)
-        img_test[h_resized*2:h_resized*3,w_resized*2:w_resized*3,:]=cv2.cvtColor((1-threshold(rgb2luv(img_blurred)[:,:,1],thresh_luv))*255,cv2.COLOR_GRAY2RGB)
-        '''
-
-
-
-
-        
         #Gradient analysis
         img_test[h_resized*1:h_resized*2,w_resized*0:w_resized*1,:] = cv2.cvtColor(abs_sobel_th(img_color, orient='x', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
         img_test[h_resized*1:h_resized*2,w_resized*1:w_resized*2,:] = cv2.cvtColor(abs_sobel_th(img_color, orient='y', ksize=kernel_abx, thresh=thresh_abx)*255, cv2.COLOR_GRAY2RGB)
@@ -244,18 +194,6 @@ while(cap.isOpened()):
         img_test[h_resized*4:h_resized*5,w_resized*0:w_resized*1,:] = draw_hist(img_pers)
 
 
-        '''
-        hist_pers = np.sum(img_pers[img_pers.shape[0]//2:,:], axis=0)
-        fig, ax = plt.subplots(1,2, figsize=(15,4))
-        
-        ax[0].imshow(img_pers, cmap = 'gray')
-        ax[0].axis("off")
-        ax[1].plot(hist_pers)
-        
-        plt.imshow(ax)
-        '''
-        
-        
 
         
 
@@ -270,7 +208,7 @@ while(cap.isOpened()):
             cv2.putText(img_test, (guide1), (50, h_resized*6+0), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
             cv2.putText(img_test, (guide2 + "th_hls= " + str(thresh_hls )+ ", th_lab= " + str(thresh_lab) + ", th_luv= " + str(thresh_luv)), (50, h_resized*6+30), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
             cv2.putText(img_test, (guide3 + "th_abx= " + str(thresh_abx) + ", th_aby= " + str(thresh_aby) + ", th_mag= " + str(thresh_mag)), (50, h_resized*6+60), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
-            cv2.putText(img_test, (guide4 + "th_dir= " + str(direction_dir)), (50, h_resized*4+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
+            cv2.putText(img_test, (guide4 + "th_dir= " + str(direction_dir)), (50, h_resized*6+90), font, 1, (255, 255, 255), 1, cv2.LINE_AA)
         
         cv2.imshow("test", img_test)
         
