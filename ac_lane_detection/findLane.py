@@ -193,3 +193,18 @@ def get_offset(left_center_points, right_center_points, w_img):
     offset_m = round(offset_p * xm_per_pix, 2)
     
     return offset_m
+
+
+
+def draw_hist(img):
+    col_intgr_proj_hist = np.zeros_like(cv2.cvtColor(img, cv2.COLOR_GRAY2RGB))
+    #h_bins = np.sum(img[img.shape[0]//2:,:], axis=0)
+    h_bins = np.sum(img//255, axis=0)
+    #print(len(h_bins))
+
+    for col in range(img.shape[1]):
+        cv2.line(col_intgr_proj_hist, (col,0), (col,h_bins[col]), (0,255,0), 1)
+
+    result = np.flipud(col_intgr_proj_hist)
+    
+    return result
