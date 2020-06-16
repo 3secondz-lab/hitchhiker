@@ -108,15 +108,15 @@ while(cap.isOpened()):
             #direction_luv = direction
             #kernel_luv = kernel
 
-            thresh_abx = (1,255)
+            thresh_abx = (64,255)
             #direction_abx = direction
             kernel_abx = 9
 
-            thresh_aby = (1,255)
+            thresh_aby = (64,255)
             #direction_aby = direction
             kernel_aby = 7
 
-            thresh_mag = (1,255)
+            thresh_mag = (64,255)
             #direction_mag = direction
             kernel_mag = 7
 

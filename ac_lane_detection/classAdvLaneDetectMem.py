@@ -2,13 +2,14 @@ class AdvLaneDetectMem:
     """
     The AdvancedLaneDetectorWithMemory is a class that can detect lines on the road
     """
-    def __init__(self, objpts, imgpts, psp_src, psp_dst, sliding_windows_per_line, 
+    #def __init__(self, objpts, imgpts, psp_src, psp_dst, sliding_windows_per_line, 
+    def __init__(self, psp_src, psp_dst, sliding_windows_per_line, 
                  sliding_window_half_width, sliding_window_recenter_thres, 
                  small_img_size=(256, 144), small_img_x_offset=20, small_img_y_offset=10,
                  img_dimensions=(720, 1280), lane_width_px=800, 
                  lane_center_px_psp=600, real_world_lane_size_meters=(32, 3.7)):
-        self.objpts = objpts
-        self.imgpts = imgpts
+        #self.objpts = objpts
+        #self.imgpts = imgpts
         (self.M_psp, self.M_inv_psp) = compute_perspective_transform_matrices(psp_src, psp_dst)
 
         self.sliding_windows_per_line = sliding_windows_per_line
@@ -44,7 +45,7 @@ class AdvLaneDetectMem:
         as well as small intermediate images overlaid on top to understand how the algorithm is performing
         """
         # First step - undistort the image using the instance's object and image points
-        undist_img = undistort_image(img, self.objpts, self.imgpts)
+        #undist_img = undistort_image(img, self.objpts, self.imgpts)
         
         # Produce binary thresholded image from color and gradients
         thres_img = get_combined_binary_thresholded_img(undist_img)
