@@ -7,28 +7,32 @@
 """
 
 import rospy
+from std_msgs.msg import MultiArrayLayout, MultiArrayDimension
 import numpy as np
 import os
+import sys
 import pickle
 
-from assetto_corsa.msg import ACRaw
+from assetto_corsa.msg import ACRaw, ACPredict
 from helper import DataHelper
 
 from chpt_d1_3sec.test_model import Model
 
+path_chpt = os.path.dirname(os.path.abspath(__file__)) + '/chpt_d1_3sec'
+
 # dataName = 'IJF_D1'.format(driverNum)  # cWindow [s], vWindow [s], vpWindow [s], cUnit [Hz], vUnit [Hz], vpUnit [Hz]
 dataName = 'IJF_D1'  # cWindow [s], vWindow [s], vpWindow [s], cUnit [Hz], vUnit [Hz], vpUnit [Hz]
-chpt_encC_path = 'chpt_d1_3sec/BEST_checkpoint_ENCC_{}.pth.tar'.format(dataName)
-chpt_encD_path = 'chpt_d1_3sec/BEST_checkpoint_ENCD_{}.pth.tar'.format(dataName)
-chpt_dec_path = 'chpt_d1_3sec/BEST_checkpoint_DEC_{}.pth.tar'.format(dataName)
-chpt_stat_path = 'chpt_d1_3sec/BEST_stat_{}.pickle'.format(dataName)
+chpt_encC_path = '{}/BEST_checkpoint_ENCC_{}.pth.tar'.format(path_chpt, dataName)
+chpt_encD_path = '{}/BEST_checkpoint_ENCD_{}.pth.tar'.format(path_chpt, dataName)
+chpt_dec_path = '{}/BEST_checkpoint_DEC_{}.pth.tar'.format(path_chpt, dataName)
+chpt_stat_path = '{}/BEST_stat_{}.pickle'.format(path_chpt, dataName)
 print('Load model...')
 testModel = Model(chpt_encC_path, chpt_encD_path, chpt_dec_path, chpt_stat_path)  # speed prediction에 사용할 model parameters
 print('Load model finished.')
 
 
 def callback(data: ACRaw):
-    global rate, freq_sub, t_accumulate, preview_dist, hist_speed, flag_debug, path_debug
+    global rate, freq_sub, t_accumulate, preview_dist, hist_speed, flag_debug, path_debug, pub
 
     px = list(data.plane_center_x.data)
     py = list(data.plane_center_y.data)
@@ -70,6 +74,37 @@ def callback(data: ACRaw):
     alphas_d = alphas_d.data.cpu().numpy()
     alphas_c = alphas_c.data.cpu().numpy()
 
+    num = preds.shape[1]
+
+    assert num == alphas_d.shape[1]
+    assert num == alphas_c.shape[1]
+
+    len_d = alphas_d.shape[2]
+    len_c = alphas_c.shape[2]
+
+    # rospy.loginfo(preds)
+
+    msg = ACPredict()
+    msg.header = data.header
+
+    msg.preds.layout.dim.append(MultiArrayDimension('num', num, 1))
+
+    msg.alphas_d.layout.dim.append(MultiArrayDimension('num', num, len_d))
+    msg.alphas_d.layout.dim.append(MultiArrayDimension('val', len_d, 1))
+
+    msg.alphas_c.layout.dim.append(MultiArrayDimension('num', num, len_c))
+    msg.alphas_c.layout.dim.append(MultiArrayDimension('val', len_c, 1))
+
+    for k in range(0, num):
+        msg.preds.data.append(preds[0][k])
+
+        for d in range(0, len_d):
+            msg.alphas_d.data.append(alphas_d[0][k][d])
+        for c in range(0, len_c):
+            msg.alphas_c.data.append(alphas_c[0][k][c])
+
+    pub.publish(msg)
+
     ##### PREDICTION CODE HERE #####
 
     if flag_debug:
@@ -103,7 +138,7 @@ def callback(data: ACRaw):
 
 
 if __name__ == '__main__':
-    global rate, freq_sub, t_accumulate, preview_dist, hist_speed, flag_debug, path_debug
+    global rate, freq_sub, t_accumulate, preview_dist, hist_speed, flag_debug, path_debug, pub
 
     # Parameters
     name_node = 'ac_predict'
@@ -131,5 +166,6 @@ if __name__ == '__main__':
     rate = rospy.Rate(freq_sub)
 
     sub = rospy.Subscriber(topic_name, ACRaw, callback, queue_size=1)
+    pub = rospy.Publisher('~output', ACPredict, queue_size=1)
 
     rospy.spin()
