@@ -139,6 +139,7 @@ while(cap.isOpened()):
         img_roi = img[crop[0]:crop[1],crop[2]:crop[3]]
         img_resized = cv2.resize(img_roi, (w_resized,h_resized), interpolation = cv2.INTER_AREA)
         img_blurred = cv2.GaussianBlur(img_resized,(kernel,kernel),25)
+        img_hls = rgb2hls(img_blurred)[:,:,2]
         img_color = combined_color(img_blurred)
         img_grad_abx = abs_sobel_th(img_color, orient='x', ksize=kernel_abx, thresh=thresh_abx)
         img_grad_aby = abs_sobel_th(img_color, orient='y', ksize=kernel_aby, thresh=thresh_aby)
