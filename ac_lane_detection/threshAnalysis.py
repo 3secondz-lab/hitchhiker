@@ -223,6 +223,7 @@ while(cap.isOpened()):
         (bottom_px, right_px) = (img_copy.shape[0] - 1, img_copy.shape[1] - 1) 
         #(bottom_px, right_px) = (h_resized*2 - 1, w_resized*2 - 1)
         #print(bottom_px, right_px)
+        print(img_copy.shape)
         #pts = np.array([[0,bottom_px-120],[280,10],[w_resized-280,10], [w_resized, bottom_px-120]], np.int32)#LB, LT, RT, RB, [x,y]
         #pts = np.array([[0,bottom_px],[160,30],[w_resized-160,30], [w_resized, bottom_px]], np.int32)
         pts = np.array([[0,bottom_px],[w_src,h_src],[w_resized-w_src,h_src], [w_resized, bottom_px]], np.int32)#LB, LT, RT, RB, [x,y]

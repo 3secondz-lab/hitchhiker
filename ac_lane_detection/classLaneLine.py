@@ -1,3 +1,8 @@
+from collections import deque
+
+def create_queue(length = 10):
+    return deque(maxlen=length)
+
 class LaneLine:
     def __init__(self):
         

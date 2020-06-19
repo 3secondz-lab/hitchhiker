@@ -238,3 +238,60 @@ def combined_sobels(sx_binary, sy_binary, sxy_magnitude_binary, gray_img, kernel
     combined[(sx_binary == 1) | ((sy_binary == 1) | (sxy_magnitude_binary == 1) )] = 1
     
     return combined
+
+
+def compute_hls_white_yellow_binary(rgb_img):
+    """
+    Returns a binary thresholded image produced retaining only white and yellow elements on the picture
+    The provided image should be in RGB format
+    """
+    hls_img = rgb2hls(rgb_img)
+    
+    # Compute a binary thresholded image where yellow is isolated from HLS components
+    img_hls_yellow_bin = np.zeros_like(hls_img[:,:,0])
+    img_hls_yellow_bin[((hls_img[:,:,0] >= 15) & (hls_img[:,:,0] <= 35))
+                 & ((hls_img[:,:,1] >= 30) & (hls_img[:,:,1] <= 204))
+                 & ((hls_img[:,:,2] >= 115) & (hls_img[:,:,2] <= 255))                
+                ] = 1
+    
+    # Compute a binary thresholded image where white is isolated from HLS components
+    img_hls_white_bin = np.zeros_like(hls_img[:,:,0])
+    img_hls_white_bin[((hls_img[:,:,0] >= 0) & (hls_img[:,:,0] <= 255))
+                 & ((hls_img[:,:,1] >= 200) & (hls_img[:,:,1] <= 255))
+                 & ((hls_img[:,:,2] >= 0) & (hls_img[:,:,2] <= 255))                
+                ] = 1
+    
+    # Now combine both
+    img_hls_white_yellow_bin = np.zeros_like(hls_img[:,:,0])
+    img_hls_white_yellow_bin[(img_hls_yellow_bin == 1) | (img_hls_white_bin == 1)] = 1
+
+    return img_hls_white_yellow_bin
+
+
+
+def get_combined_binary_thresholded_img(undist_img):
+    """
+    Applies a combination of binary Sobel and color thresholding to an undistorted image
+    Those binary images are then combined to produce the returned binary image
+    """
+    undist_img_gray = rgb2lab(undist_img)[:,:,0]
+    sx = abs_sobel_th(undist_img_gray, orient='x', ksize=15, thresh=(20, 120))
+    sy = abs_sobel_th(undist_img_gray, orient='y', ksize=15, thresh=(20, 120))
+    sxy = mag_sobel_th(undist_img_gray, ksize=15, thresh=(80, 200))
+    sxy_combined_dir = combined_sobels(sx, sy, sxy, undist_img_gray, kernel_size=15, angle_thres=(np.pi/4, np.pi/2))   
+    
+    hls_w_y_thres = compute_hls_white_yellow_binary(undist_img)
+    
+    combined_binary = np.zeros_like(hls_w_y_thres)
+    combined_binary[(sxy_combined_dir == 1) | (hls_w_y_thres == 1)] = 1
+        
+    return combined_binary
+
+
+
+def colorGradThreshProcess(img_resized):
+    img_blurred = cv2.GaussianBlur(img_resized,(11,11),25)
+    img_color = combined_color(img_blurred)
+    img_grad_mag = mag_sobel_th(img_color, ksize=7, thresh=(64,255))
+    img_result = np.copy(img_grad_mag)*255
+    return img_grad_mag

@@ -66,14 +66,22 @@ while(cap.isOpened()):
             break
         #cv2.imshow("test", img)
         img_cropped = img[crop[0]:crop[1],crop[2]:crop[3]]
-        img_resized = cv2.resize(img_roi, (w_resized,h_resized), interpolation = cv2.INTER_AREA)
+        img_resized = cv2.resize(img_cropped, (w_resized,h_resized), interpolation = cv2.INTER_AREA)
 
         (bottom_px, right_px) = (img_resized.shape[0] - 1, img_resized.shape[1] - 1) 
         pts = np.array([[0,bottom_px],[w_src,h_src],[w_resized-w_src,h_src], [w_resized, bottom_px]], np.int32)#LB, LT, RT, RB, [x,y]
         src_pts = pts.astype(np.float32)
         dst_pts = np.array([[w_dst,bottom_px-h_dst], [w_dst,h_dst], [w_resized-w_dst,20], [w_resized-w_dst, bottom_px-h_dst]], np.float32)
         
-        AdvLaneDetectMem(src_pts, dst_pts, 20, 100, 50)
+        lane_detection = AdvLaneDetectMem(src_pts, dst_pts, 20, 100, 50)
+
+        img_proc = lane_detection.process_image(img_resized)
+
+        cv2.imshow("Result", img_proc)
+
+
+
+
 
         
 

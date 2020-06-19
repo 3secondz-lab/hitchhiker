@@ -1,4 +1,7 @@
 import math
+import numpy as np
+
+from classLaneLine import LaneLine, create_queue
 
 class LaneLineHistory:
     def __init__(self, queue_depth=2, test_points=[50, 300, 500, 700], poly_max_deviation_distance=150):

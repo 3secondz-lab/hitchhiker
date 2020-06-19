@@ -1,3 +1,16 @@
+import numpy as np
+import cv2
+import math
+
+from transformImage import compute_perspective_transform_matrices, perspective_transform
+from thresholdColorGrad import colorGradThreshProcess, get_combined_binary_thresholded_img, combined_color, line_rgw_bin, line_wr_bin, combined_sobels, rgb2gray, rgb2luv, rgb2lab, rgb2hls, hls_wy_bin, threshold, hls_select, lab_select, luv_select, abs_sobel_th, mag_sobel_th, dir_sobel_th
+
+from classLaneLine import LaneLine, create_queue
+from classLaneLineHistory import LaneLineHistory
+
+from collections import deque
+
+
 class AdvLaneDetectMem:
     """
     The AdvancedLaneDetectorWithMemory is a class that can detect lines on the road
@@ -5,9 +18,12 @@ class AdvLaneDetectMem:
     #def __init__(self, objpts, imgpts, psp_src, psp_dst, sliding_windows_per_line, 
     def __init__(self, psp_src, psp_dst, sliding_windows_per_line, 
                  sliding_window_half_width, sliding_window_recenter_thres, 
-                 small_img_size=(256, 144), small_img_x_offset=20, small_img_y_offset=10,
-                 img_dimensions=(720, 1280), lane_width_px=800, 
-                 lane_center_px_psp=600, real_world_lane_size_meters=(32, 3.7)):
+                 #small_img_size=(256, 144), small_img_x_offset=20, small_img_y_offset=10,
+                 #img_dimensions=(720, 1280), lane_width_px=800, 
+                 small_img_size=(44, 47), small_img_x_offset=7, small_img_y_offset=2,
+                 img_dimensions=(125, 420), lane_width_px=250, 
+                 #lane_center_px_psp=600, real_world_lane_size_meters=(32, 3.7)):
+                 lane_center_px_psp=210, real_world_lane_size_meters=(32, 3.7)):
         #self.objpts = objpts
         #self.imgpts = imgpts
         (self.M_psp, self.M_inv_psp) = compute_perspective_transform_matrices(psp_src, psp_dst)
@@ -48,11 +64,12 @@ class AdvLaneDetectMem:
         #undist_img = undistort_image(img, self.objpts, self.imgpts)
         
         # Produce binary thresholded image from color and gradients
-        thres_img = get_combined_binary_thresholded_img(undist_img)
-        
+        #thres_img = get_combined_binary_thresholded_img(img)
+        thres_img = colorGradThreshProcess(img)
+                
         # Create the undistorted and binary perspective transforms
-        img_size = (undist_img.shape[1], undist_img.shape[0])
-        undist_img_psp = cv2.warpPerspective(undist_img, self.M_psp, img_size, flags=cv2.INTER_LINEAR)
+        img_size = (img.shape[1], img.shape[0])
+        undist_img_psp = cv2.warpPerspective(img, self.M_psp, img_size, flags=cv2.INTER_LINEAR)
         thres_img_psp = cv2.warpPerspective(thres_img, self.M_psp, img_size, flags=cv2.INTER_LINEAR)
         
         ll, rl = self.compute_lane_lines(thres_img_psp)
@@ -64,7 +81,7 @@ class AdvLaneDetectMem:
         drawn_lines_regions = self.draw_lane_lines_regions(thres_img_psp, ll, rl)
         #plt.imshow(drawn_lines_regions)
         
-        drawn_lane_area = self.draw_lane_area(thres_img_psp, undist_img, ll, rl)        
+        drawn_lane_area = self.draw_lane_area(thres_img_psp, img, ll, rl)        
         #plt.imshow(drawn_lane_area)
         
         drawn_hotspots = self.draw_lines_hotspots(thres_img_psp, ll, rl)
@@ -234,6 +251,9 @@ class AdvLaneDetectMem:
         rightx = right_line.line_fit_x
         
         # Fit new polynomials: find x for y in real-world space
+
+        print(len(ploty))
+        print(len(leftx))
         left_fit_cr = np.polyfit(ploty * self.ym_per_px, leftx * self.xm_per_px, 2)
         right_fit_cr = np.polyfit(ploty * self.ym_per_px, rightx * self.xm_per_px, 2)
         
@@ -262,6 +282,16 @@ class AdvLaneDetectMem:
 
         # Take a histogram of the bottom half of the image, summing pixel values column wise 
         histogram = np.sum(warped_img[warped_img.shape[0]//2:,:], axis=0)
+
+        '''
+        col_intgr_proj_hist = np.zeros_like(cv2.cvtColor(warped_img, cv2.COLOR_GRAY2RGB))
+        
+        for col in range(warped_img.shape[1]):
+            cv2.line(col_intgr_proj_hist, (col,0), (col,histogram[col]), (0,255,0), 1)
+        result = np.flipud(col_intgr_proj_hist)
+
+        cv2.imwrite("./test.jpg",result)
+        '''
         
         # Find the peak of the left and right halves of the histogram
         # These will be the starting point for the left and right lines 
