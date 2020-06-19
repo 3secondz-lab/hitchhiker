@@ -108,7 +108,7 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
     # m.suspensionHeight.layout.dim.append(MultiArrayDimension('val', 4, 4))
 
     for k in range(0, 4):
-        m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
+        # m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
         m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
         m.slipAngle.data.append(data_udp.slipAngle[k])
         m.slipAngle_ContactPatch.data.append(data_udp.slipAngle_ContactPatch[k])
