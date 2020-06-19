@@ -31,13 +31,20 @@ mode = 'fixed'
 #crop = [484,812,0,1280]#laguna seca - top, bottom, left, right
 #crop = [240,600,0,1280]#inje_86 - top, bottom, left, right
 #[h_img, w_img] = [360, 1280]#inje_86
-crop = [60,310,220,1060]#inje_lancer - top, bottom, left, right
-[h_cropped, w_cropped] = [crop[1]-crop[0], crop[3]-crop[2]]#inje_lancer
-resize_rate = 0.5
+resize_rate = 2
+#crop = [60,310,220,1060]#inje_lancer - top, bottom, left, right
+#[h_cropped, w_cropped] = [crop[1]-crop[0], crop[3]-crop[2]]#inje_lancer
+crop = [60,310,220,1060]*int(2*resize_rate)
+[h_cropped, w_cropped] = [crop[1]-crop[0], crop[3]-crop[2]]
+
 [h_resized, w_resized] = [int(h_cropped*resize_rate), int(w_cropped*resize_rate)]
-[h_src, w_src] = [60,130]
-[h_dst, w_dst] = [20,60]
-[h_win, w_win] = [10,30]
+[h_src, w_src] = [60*int(2*resize_rate), 130*int(2*resize_rate)]
+[h_dst, w_dst] = [20*int(2*resize_rate), 60*int(2*resize_rate)]
+[h_win, w_win] = [10*int(2*resize_rate), 30*int(2*resize_rate)]
+[h_small, w_small] = [int(256*h_resized/720), int(144*w_resized/1280)]
+[xoffset_small, yoffset_small] = [int(20*w_resized/1280), int(10*h_resized/720)]
+w_lane_px = int(800*w_resized/1280)
+c_lane_px = int(600*w_resized/1280)
 
 
 font = cv2.FONT_HERSHEY_DUPLEX
@@ -73,7 +80,17 @@ while(cap.isOpened()):
         src_pts = pts.astype(np.float32)
         dst_pts = np.array([[w_dst,bottom_px-h_dst], [w_dst,h_dst], [w_resized-w_dst,20], [w_resized-w_dst, bottom_px-h_dst]], np.float32)
         
-        lane_detection = AdvLaneDetectMem(src_pts, dst_pts, 20, 100, 50)
+        lane_detection = AdvLaneDetectMem(psp_src=src_pts, psp_dst=dst_pts,
+                                          sliding_windows_per_line=20,
+                                          #sliding_window_half_width=100,
+                                          sliding_window_half_width=20,
+                                          sliding_window_recenter_thres=50,
+                                          small_img_size=(h_small,w_small),
+                                          small_img_x_offset=xoffset_small,
+                                          small_img_y_offset=yoffset_small,
+                                          img_dimensions=(h_resized,w_resized),
+                                          lane_width_px=w_lane_px,
+                                          lane_center_px_psp=c_lane_px)
 
         img_proc = lane_detection.process_image(img_resized)
 
