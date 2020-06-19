@@ -7,9 +7,16 @@
 """
 
 import rospy
+from socket import *
 from assetto_corsa.msg import ACRaw
 from translate import *
 from std_msgs.msg import String, MultiArrayDimension
+
+from functools import wraps
+import errno
+import os
+import signal
+from contextlib import suppress
 
 import logging
 import sys
@@ -22,11 +29,36 @@ debug_handler.setFormatter(logging.Formatter('[%(asctime)s] %(name)s-%(levelname
 debug_logger.addHandler(debug_handler)
 debug_logger.info("ac_pub.py")
 
-aipath = ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa', 'imola', debug_logger)
+aipath = ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa', 'magione', debug_logger)
 
 list_plane_name = ['center_x', 'center_y', 'left_x', 'left_y', 'right_x', 'right_y',
                    'radius', 'psie', 'cte']
 list_cam_name = ['center_x', 'center_y', 'left_x', 'left_y', 'right_x', 'right_y']
+
+
+class TimeoutError(Exception):
+    pass
+
+
+def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
+    def decorator(func):
+        def _handle_timeout(signum, frame):
+            raise TimeoutError(error_message)
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.setitimer(signal.ITIMER_REAL,seconds) #used timer instead of alarm
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+        return wraps(func)(wrapper)
+    return decorator
+
+@timeout(1)
+def recv_with_timeout(socket):
+    return socket.recvfrom(1024)
 
 
 def generate_msg_from_data(data_udp: payload_t, preview: dict):
@@ -76,6 +108,7 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
     # m.suspensionHeight.layout.dim.append(MultiArrayDimension('val', 4, 4))
 
     for k in range(0, 4):
+        m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
         m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
         m.slipAngle.data.append(data_udp.slipAngle[k])
         m.slipAngle_ContactPatch.data.append(data_udp.slipAngle_ContactPatch[k])
@@ -187,7 +220,9 @@ if __name__ == '__main__':
 
     while not rospy.is_shutdown():
         try:
-            data, _ = s.recvfrom(1024)
+            # data, _ = s.recvfrom(1024)
+            data, _ = recv_with_timeout(s)
+            
             if len(data) != 328:
                 print('Inconsistent data length : {}'.format(len(data)))
                 continue
@@ -202,10 +237,27 @@ if __name__ == '__main__':
             pub.publish(m)
 
             rate.sleep()
-        except KeyboardInterrupt:
-            print('Finishing...')
+        except TimeoutError:
             dismiss(s, target)
-            break
+            time.sleep(0.5)
+            s = socket(AF_INET, SOCK_DGRAM)
+            s.bind((ip_bind, 0))
+            while True:
+                if rospy.is_shutdown():
+                    break
+                if not target_on_listening(s, target):
+                    print('Waiting again...')
+                    time.sleep(0.5)
+                else:
+                    break
+            handshake(s, target)
+            print('Connected again')
+            continue
+        except KeyboardInterrupt:
+            with suppress(TimeoutError):
+                print('Finishing...')
+                dismiss(s, target)
+                break
 
     dismiss(s, target)
     print('{} node finished.'.format(name_node))

@@ -41,7 +41,7 @@ def callback(data: Float64MultiArray):
 
     try:
         socket_global.send(bytes(payload))
-        print("Data : {}, {}, {}".format(v1, v2, v3))
+        # print("Data : {}, {}, {}".format(v1, v2, v3))
     except (ConnectionRefusedError, BrokenPipeError):
         socket_global = socket(AF_INET, SOCK_STREAM)
         try:
@@ -52,7 +52,7 @@ def callback(data: Float64MultiArray):
         except ConnectionRefusedError:
             return
         socket_global.send(bytes(payload))
-        print("Data : {}, {}, {}".format(v1, v2, v3))
+        # print("Data : {}, {}, {}".format(v1, v2, v3))
 
 
 

@@ -98,11 +98,20 @@ def decode_synack(synack):
 def handshake(s: socket, target: tuple):
     global identifier, version
     SYN = struct.pack('iii', 1, 1, 0)
+    print('Handshake : Send SYN')
     s.sendto(SYN, target)
+    print('Handshake : Receive SYNACK')
     SYNACK, addr = s.recvfrom(1024)
     _, _, identifier, version, _, _ = decode_synack(SYNACK)
     ACK = struct.pack('iii', identifier, version, 1)
+    print('Handshake : Send ACK')
     s.sendto(ACK, target)
+    print('Handshake : Done')
+
+def update(s: socket, target: tuple):
+    global identifier, version
+    SYN = struct.pack('iii', identifier, version, 2)
+    s.sendto(SYN, target)
 
 
 def dismiss(s: socket, target: tuple):
