@@ -4,6 +4,7 @@
   <arg name="freq_pub" default="500" />
   <arg name="host" default="localhost" />
   <arg name="port" default="9996" />
+  <arg name="course" default="imola" />
 
   <node name="ac_pub" pkg="assetto_corsa" type="ac_pub.py" required="true" output="screen">
 
@@ -11,6 +12,7 @@
     <param name="freq_pub" value="$(arg freq_pub)" type="int" />
     <param name="host" value="$(arg host)" type="str" />
     <param name="port" value="$(arg port)" type="int" />
+    <param name="course" value="$(arg course)" type="str" />
 
   </node>
 

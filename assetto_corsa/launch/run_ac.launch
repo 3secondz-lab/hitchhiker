@@ -7,6 +7,7 @@
   <arg name="ac_pub_freq" default="500" />
   <arg name="ac_pub_host" default="192.168.0.48" />
   <arg name="ac_pub_port" default="9996" />
+  <arg name="ac_pub_course" default="imola" />
 
   <!-- ac_joystick arguments -->
   <arg name="ac_joy_topic_name" default="/matlab_controller" />
@@ -19,6 +20,7 @@
     <arg name="freq_pub" default="$(arg ac_pub_freq)" />
     <arg name="host" default="$(arg ac_pub_host)" />
     <arg name="port" default="$(arg ac_pub_port)" />
+    <arg name="course" default="$(arg ac_pub_course)" />
   </include>
 
   <!-- ac_joystick -->

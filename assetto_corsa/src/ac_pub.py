@@ -29,8 +29,6 @@ debug_handler.setFormatter(logging.Formatter('[%(asctime)s] %(name)s-%(levelname
 debug_logger.addHandler(debug_handler)
 debug_logger.info("ac_pub.py")
 
-aipath = ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa', 'magione', debug_logger)
-
 list_plane_name = ['center_x', 'center_y', 'left_x', 'left_y', 'right_x', 'right_y',
                    'radius', 'psie', 'cte']
 list_cam_name = ['center_x', 'center_y', 'left_x', 'left_y', 'right_x', 'right_y']
@@ -108,7 +106,6 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
     # m.suspensionHeight.layout.dim.append(MultiArrayDimension('val', 4, 4))
 
     for k in range(0, 4):
-        # m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
         m.wheelAngularSpeed.data.append(data_udp.wheelAngularSpeed[k])
         m.slipAngle.data.append(data_udp.slipAngle[k])
         m.slipAngle_ContactPatch.data.append(data_udp.slipAngle_ContactPatch[k])
@@ -186,6 +183,11 @@ if __name__ == '__main__':
 
     host = rospy.get_param('/{}/host'.format(name_node), 'localhost')
     port = rospy.get_param('/{}/port'.format(name_node), 9996)
+
+    course = rospy.get_param('/{}/course'.format(name_node), 'imola')
+    print('Targer course : {}'.format(course))
+
+    aipath = ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa', course, debug_logger)
 
     # Connect
     target = (host, port)
