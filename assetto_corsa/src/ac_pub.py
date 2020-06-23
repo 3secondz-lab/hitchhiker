@@ -185,7 +185,7 @@ if __name__ == '__main__':
     port = rospy.get_param('/{}/port'.format(name_node), 9996)
 
     course = rospy.get_param('/{}/course'.format(name_node), 'imola')
-    print('Targer course : {}'.format(course))
+    print('Target course : {}'.format(course))
 
     aipath = ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa', course, debug_logger)
 
