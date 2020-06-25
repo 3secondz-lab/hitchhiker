@@ -14,6 +14,8 @@ class ai(object):
         else:
             self.fname = ac_path + "/content/tracks/" + fname_track + '/ai/fast_lane.ai'
 
+        self.fname_track = fname_track
+
         print(self.fname)
         self.logger = logger
         self.ctl = {}
@@ -232,52 +234,56 @@ if __name__ == "__main__":
     debug_handler.setFormatter(logging.Formatter('[%(asctime)s] %(name)s-%(levelname)s: %(message)s'))
     debug_logger.addHandler(debug_handler)
     debug_logger.info("ac_parseai.py")
-
-    aipath=ai('/mnt/d/Steam/steamapps/common/assettocorsa','imola', debug_logger)
+    track = 'magione'
+    aipath=ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa',track, debug_logger)
     aipath.get_euler()
     aipath.get_bound()    
     aipath.preview = {'plane':{}, 'cam':{}}
     
-    import matplotlib.pyplot as plt
+    import csv
+    import pandas as pd
+    df = pd.DataFrame(aipath.line)
+    df.to_csv(track+'.csv', sep=',', na_rep='NaN')
+    # import matplotlib.pyplot as plt
 
-    # aipath.get_preview(0,100,1)
+    # # aipath.get_preview(0,100,1)
 
-    fig, (ax1, ax2, ax3) = plt.subplots(1,3)
-    ax1.set(xlim=(-1000,1000),ylim=(-1000,1000))
-    ax2.set(xlim=(-50,50),ylim=(0,100))
-    ax3.set(xlim=(-2,2), ylim=(-1,3))
-    l11,=ax1.plot([],[])
-    l12,=ax1.plot([],[])
-    l13,=ax1.plot([],[])
-    l14,=ax1.plot([],[],'o')
-    l21,=ax2.plot([],[])
-    l22,=ax2.plot([],[])
-    l23,=ax2.plot([],[])
-    l31,=ax3.plot([],[])
-    l32,=ax3.plot([],[])
-    l33,=ax3.plot([],[])
-    l11.set_data(aipath.line['center_x'], aipath.line['center_y'])
-    l12.set_data(aipath.line['inner_x'], aipath.line['inner_y'])
-    l13.set_data(aipath.line['outer_x'], aipath.line['outer_y'])
-    for i in range(aipath.length-100):
-        aipath.get_preview(i,100,1)
+    # fig, (ax1, ax2, ax3) = plt.subplots(1,3)
+    # ax1.set(xlim=(-1000,1000),ylim=(-1000,1000))
+    # ax2.set(xlim=(-50,50),ylim=(0,100))
+    # ax3.set(xlim=(-2,2), ylim=(-1,3))
+    # l11,=ax1.plot([],[])
+    # l12,=ax1.plot([],[])
+    # l13,=ax1.plot([],[])
+    # l14,=ax1.plot([],[],'o')
+    # l21,=ax2.plot([],[])
+    # l22,=ax2.plot([],[])
+    # l23,=ax2.plot([],[])
+    # l31,=ax3.plot([],[])
+    # l32,=ax3.plot([],[])
+    # l33,=ax3.plot([],[])
+    # l11.set_data(aipath.line['center_x'], aipath.line['center_y'])
+    # l12.set_data(aipath.line['inner_x'], aipath.line['inner_y'])
+    # l13.set_data(aipath.line['outer_x'], aipath.line['outer_y'])
+    # for i in range(aipath.length-100):
+    #     aipath.get_preview(i,100,1)
         
-        l14.set_data(aipath.line['center_x'][i],aipath.line['center_y'][i])
-        l21.set_data(-aipath.preview['plane']['center_y'], aipath.preview['plane']['center_x'])
-        l22.set_data(-aipath.preview['plane']['left_y'], aipath.preview['plane']['left_x'])
-        l23.set_data(-aipath.preview['plane']['right_y'], aipath.preview['plane']['right_x'])
-        l31.set_data(-aipath.preview['cam']['center_x'], aipath.preview['cam']['center_y'])
-        l32.set_data(-aipath.preview['cam']['left_x'], aipath.preview['cam']['left_y'])
-        l33.set_data(-aipath.preview['cam']['right_x'], aipath.preview['cam']['right_y'])
-        # l11,l12,l13, =ax1.plot(aipath.line['center_x'],aipath.line['center_y'],aipath.line['inner_x'],aipath.line['inner_y'],aipath.line['outer_x'],aipath.line['outer_y'], aipath.line['center_x'][i],aipath.line['center_y'][i],'o')
-        # l21,l22,l23, =ax2.plot(-aipath.preview['plane']['center_y'], aipath.preview['plane']['center_x'],-aipath.preview['plane']['left_y'], aipath.preview['plane']['left_x'],-aipath.preview['plane']['right_y'], aipath.preview['plane']['right_x'])
-        # l31,l32,l33, =ax3.plot(-aipath.preview['cam']['center_x'], aipath.preview['cam']['center_y'],-aipath.preview['cam']['left_x'], aipath.preview['cam']['left_y'],-aipath.preview['cam']['right_x'], aipath.preview['cam']['right_y'])
-    # plt.plot(-aipath.preview['plane']['center_y'], aipath.preview['plane']['center_x'],-aipath.preview['plane']['left_y'], aipath.preview['plane']['left_x'],-aipath.preview['plane']['right_y'], aipath.preview['plane']['right_x'])
-    # plt.plot(aipath.line['center_x'],aipath.line['center_y'],aipath.line['inner_x'],aipath.line['inner_y'],aipath.line['outer_x'],aipath.line['outer_y'])
-    # plt.plot(-aipath.preview['cam']['center_x'], aipath.preview['cam']['center_y'],-aipath.preview['cam']['left_x'], aipath.preview['cam']['left_y'],-aipath.preview['cam']['right_x'], aipath.preview['cam']['right_y'])
-        plt.pause(0.001)
-        # plt.draw()
-    plt.show()
-    # with open('./data.json','w') as fp:
-    #     json.dump(aipath.line, fp)
+    #     l14.set_data(aipath.line['center_x'][i],aipath.line['center_y'][i])
+    #     l21.set_data(-aipath.preview['plane']['center_y'], aipath.preview['plane']['center_x'])
+    #     l22.set_data(-aipath.preview['plane']['left_y'], aipath.preview['plane']['left_x'])
+    #     l23.set_data(-aipath.preview['plane']['right_y'], aipath.preview['plane']['right_x'])
+    #     l31.set_data(-aipath.preview['cam']['center_x'], aipath.preview['cam']['center_y'])
+    #     l32.set_data(-aipath.preview['cam']['left_x'], aipath.preview['cam']['left_y'])
+    #     l33.set_data(-aipath.preview['cam']['right_x'], aipath.preview['cam']['right_y'])
+    #     # l11,l12,l13, =ax1.plot(aipath.line['center_x'],aipath.line['center_y'],aipath.line['inner_x'],aipath.line['inner_y'],aipath.line['outer_x'],aipath.line['outer_y'], aipath.line['center_x'][i],aipath.line['center_y'][i],'o')
+    #     # l21,l22,l23, =ax2.plot(-aipath.preview['plane']['center_y'], aipath.preview['plane']['center_x'],-aipath.preview['plane']['left_y'], aipath.preview['plane']['left_x'],-aipath.preview['plane']['right_y'], aipath.preview['plane']['right_x'])
+    #     # l31,l32,l33, =ax3.plot(-aipath.preview['cam']['center_x'], aipath.preview['cam']['center_y'],-aipath.preview['cam']['left_x'], aipath.preview['cam']['left_y'],-aipath.preview['cam']['right_x'], aipath.preview['cam']['right_y'])
+    # # plt.plot(-aipath.preview['plane']['center_y'], aipath.preview['plane']['center_x'],-aipath.preview['plane']['left_y'], aipath.preview['plane']['left_x'],-aipath.preview['plane']['right_y'], aipath.preview['plane']['right_x'])
+    # # plt.plot(aipath.line['center_x'],aipath.line['center_y'],aipath.line['inner_x'],aipath.line['inner_y'],aipath.line['outer_x'],aipath.line['outer_y'])
+    # # plt.plot(-aipath.preview['cam']['center_x'], aipath.preview['cam']['center_y'],-aipath.preview['cam']['left_x'], aipath.preview['cam']['left_y'],-aipath.preview['cam']['right_x'], aipath.preview['cam']['right_y'])
+    #     plt.pause(0.001)
+    #     # plt.draw()
+    # plt.show()
+    # # with open('./data.json','w') as fp:
+    # #     json.dump(aipath.line, fp)
     pass

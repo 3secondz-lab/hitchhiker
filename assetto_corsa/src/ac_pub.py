@@ -12,6 +12,10 @@ from assetto_corsa.msg import ACRaw
 from translate import *
 from std_msgs.msg import String, MultiArrayDimension
 
+# For dynamic_reconfigure
+from dynamic_reconfigure.server import Server
+from assetto_corsa.cfg import ACTargetParamsConfig
+
 from functools import wraps
 import errno
 import os
@@ -20,6 +24,7 @@ from contextlib import suppress
 
 import logging
 import sys
+import yaml
 from ac_parseai import *
 
 debug_logger = logging.getLogger('dev')
@@ -32,6 +37,35 @@ debug_logger.info("ac_pub.py")
 list_plane_name = ['center_x', 'center_y', 'left_x', 'left_y', 'right_x', 'right_y',
                    'radius', 'psie', 'cte']
 list_cam_name = ['center_x', 'center_y', 'left_x', 'left_y', 'right_x', 'right_y']
+
+ac_path = '/home/rnd/.steam/steam/steamapps/common/assettocorsa'
+
+# Parse track parameter
+dict_track = {}
+config_description = ACTargetParamsConfig.config_description
+for param in config_description['parameters']:
+    if param['name'] == 'track':
+        track_enum = yaml.load(param['edit_method'])['enum']
+        for t in track_enum:
+            dict_track[t['value']] = t['name']
+        break
+print("Tracks : {}".format(dict_track))
+
+
+def callbackParam(config, level):
+    global aipath
+
+    rospy.loginfo("Dynamic parameter callback")
+
+    # Track change
+    if aipath.fname_track != dict_track[config['track']]:
+        course_prev = aipath.fname_track
+        course_new = dict_track[config['track']]
+        aipath = ai(ac_path, course_new, debug_logger)
+
+        rospy.loginfo("Track changed : {} -> {}".format(course_prev, aipath.fname_track))
+
+    return config
 
 
 class TimeoutError(Exception):
@@ -175,6 +209,8 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
 
 if __name__ == '__main__':
     # Parameters
+    global aipath
+
     name_node = 'ac_pub'
     freq_pub = rospy.get_param('/{}/freq_pub'.format(name_node), 500)
     print('freq_pub : {}'.format(freq_pub))
@@ -187,7 +223,10 @@ if __name__ == '__main__':
     course = rospy.get_param('/{}/course'.format(name_node), 'imola')
     print('Target course : {}'.format(course))
 
-    aipath = ai('/home/rnd/.steam/steam/steamapps/common/assettocorsa', course, debug_logger)
+    aipath = ai(ac_path, course, debug_logger)
+
+    # Dynamic parameter server
+    srv = Server(ACTargetParamsConfig, callbackParam)
 
     # Connect
     target = (host, port)
