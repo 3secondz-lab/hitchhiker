@@ -174,7 +174,6 @@ target_link_libraries(ac_controller
 ## in contrast to setup.py, you can choose the destination
  install(PROGRAMS
    src/ac_pub.py
-   src/ac_sub.py
    src/translate.py
    src/ac_parseai.py
    src/ac_csv_writer.py
