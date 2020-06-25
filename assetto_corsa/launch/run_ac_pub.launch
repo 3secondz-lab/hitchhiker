@@ -16,7 +16,5 @@
 
   </node>
 
-  <node name="ac_param_server" pkg="assetto_corsa" type="ac_param_server.py" required="true" output="screen" />
-
 </launch>
 
