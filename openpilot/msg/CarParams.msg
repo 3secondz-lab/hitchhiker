@@ -60,7 +60,7 @@ std_msgs/String carVin
 std_msgs/Bool isPandaBlack
 std_msgs/Bool dashcamOnly
 std_msgs/UInt64 transmissionType
-openpilot/CarFW[] carFw
+openpilot/CarFw[] carFw
 std_msgs/Float32 radarTimeStep
 std_msgs/Bool communityFeature
 std_msgs/UInt64 fingerprintSource

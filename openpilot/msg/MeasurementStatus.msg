@@ -1,0 +1,35 @@
+# MeasurementStatus Message
+
+std_msgs/Bool subMillisecondIsValid
+std_msgs/Bool subBitTimeIsKnown
+std_msgs/Bool satelliteTimeIsKnown
+std_msgs/Bool bitEdgeConfirmedFromSignal
+std_msgs/Bool measuredVelocity
+std_msgs/Bool fineOrCoarseVelocity
+std_msgs/Bool lockPointValid
+std_msgs/Bool lockPointPositive
+std_msgs/Bool lastUpdateFromDifference
+std_msgs/Bool lastUpdateFromVelocityDifference
+std_msgs/Bool strongIndicationOfCrossCorelation
+std_msgs/Bool tentativeMeasurement
+std_msgs/Bool measurementNotUsable
+std_msgs/Bool sirCheckIsNeeded
+std_msgs/Bool probationMode
+
+std_msgs/Bool glonassMeanderBitEdgeValid
+std_msgs/Bool glonassTimeMarkValid
+
+std_msgs/Bool gpsRoundRobinRxDiversity
+std_msgs/Bool gpsRxDiversity
+std_msgs/Bool gpsLowBandwidthRxDiversityCombined
+std_msgs/Bool gpsHighBandwidthNu4
+std_msgs/Bool gpsHighBandwidthNu8
+std_msgs/Bool gpsHighBandwidthUniform
+std_msgs/Bool multipathIndicator
+
+std_msgs/Bool imdJammingIndicator
+std_msgs/Bool lteB13TxJammingIndicator
+std_msgs/Bool freshMeasurementIndicator
+
+std_msgs/Bool multipathEstimateIsValid
+std_msgs/Bool directionIsValid

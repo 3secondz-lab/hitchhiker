@@ -1,0 +1,60 @@
+# ClockReport Message
+
+std_msgs/Bool hasFCount
+std_msgs/UInt32 fCount
+
+std_msgs/Bool hasGpsWeek
+std_msgs/UInt16 gpsWeek
+std_msgs/Bool hasGpsMilliseconds
+std_msgs/UInt32 gpsMilliseconds
+std_msgs/Float32 gpsTimeBias
+std_msgs/Float32 gpsClockTimeUncertainty
+std_msgs/UInt8 gpsClockSource
+
+std_msgs/Bool hasGlonassYear
+std_msgs/UInt8 glonassYear
+std_msgs/Bool hasGlonassDay
+std_msgs/UInt16 glonassDay
+std_msgs/Bool hasGlonassMilliseconds
+std_msgs/UInt32 glonassMilliseconds
+std_msgs/Float32 glonassTimeBias
+std_msgs/Float32 glonassClockTimeUncertainty
+std_msgs/UInt8 glonassClockSource
+
+std_msgs/UInt16 bdsWeek
+std_msgs/UInt32 bdsMilliseconds
+std_msgs/Float32 bdsTimeBias
+std_msgs/Float32 bdsClockTimeUncertainty
+std_msgs/UInt8 bdsClockSource
+
+std_msgs/UInt16 galWeek
+std_msgs/UInt32 galMilliseconds
+std_msgs/Float32 galTimeBias
+std_msgs/Float32 galClockTimeUncertainty
+std_msgs/UInt8 galClockSource
+
+std_msgs/Float32 clockFrequencyBias
+std_msgs/Float32 clockFrequencyUncertainty
+std_msgs/UInt8 frequencySource
+std_msgs/UInt8 gpsLeapSeconds
+std_msgs/UInt8 gpsLeapSecondsUncertainty
+std_msgs/UInt8 gpsLeapSecondsSource
+
+std_msgs/Float32 gpsToGlonassTimeBiasMilliseconds
+std_msgs/Float32 gpsToGlonassTimeBiasMillisecondsUncertainty
+std_msgs/Float32 gpsToBdsTimeBiasMilliseconds
+std_msgs/Float32 gpsToBdsTimeBiasMillisecondsUncertainty
+std_msgs/Float32 bdsToGloTimeBiasMilliseconds
+std_msgs/Float32 bdsToGloTimeBiasMillisecondsUncertainty
+std_msgs/Float32 gpsToGalTimeBiasMilliseconds
+std_msgs/Float32 gpsToGalTimeBiasMillisecondsUncertainty
+std_msgs/Float32 galToGloTimeBiasMilliseconds
+std_msgs/Float32 galToGloTimeBiasMillisecondsUncertainty
+std_msgs/Float32 galToBdsTimeBiasMilliseconds
+std_msgs/Float32 galToBdsTimeBiasMillisecondsUncertainty
+
+std_msgs/Bool hasRtcTime
+std_msgs/UInt32 systemRtcTime
+std_msgs/UInt32 fCountOffset
+std_msgs/UInt32 lpmRtcCount
+std_msgs/UInt32 clockResets

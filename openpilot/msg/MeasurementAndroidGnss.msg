@@ -1,0 +1,28 @@
+# MeasurementAndroidGnss Message
+
+std_msgs/Int32 svId
+std_msgs/UInt64 constellation
+
+std_msgs/Float64 timeOffsetNanos
+std_msgs/Int32 state
+std_msgs/Int64 receivedSvTimeNanos
+std_msgs/Int64 receivedSvTimeUncertaintyNanos
+std_msgs/Float64 cn0DbHz
+std_msgs/Float64 pseudorangeRateMetersPerSecond
+std_msgs/Float64 pseudorangeRateUncertaintyMetersPerSecond
+std_msgs/Int32 accumulatedDeltaRangeState
+std_msgs/Float64 accumulatedDeltaRangeMeters
+std_msgs/Float64 accumulatedDeltaRangeUncertaintyMeters
+
+std_msgs/Bool hasCarrierFrequencyHz
+std_msgs/Float32 carrierFrequencyHz
+std_msgs/Bool hasCarrierCycles
+std_msgs/Int64 carrierCycles
+std_msgs/Bool hasCarrierPhase
+std_msgs/Float64 carrierPhase
+std_msgs/Bool hasCarrierPhaseUncertainty
+std_msgs/Float64 carrierPhaseUncertainty
+std_msgs/Bool hasSnrInDb
+std_msgs/Float64 snrInDb
+
+std_msgs/UInt64 multipathIndicator
