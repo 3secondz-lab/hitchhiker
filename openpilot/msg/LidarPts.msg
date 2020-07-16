@@ -10,7 +10,7 @@ std_msgs/UInt8[] reflect
 std_msgs/UInt64 idx
 
 # For storing in file
-std_msgs/Byte[] pkt
+std_msgs/String pkt
 
 
 

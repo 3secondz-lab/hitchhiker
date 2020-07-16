@@ -12,7 +12,7 @@ std_msgs/Int32 lensPos
 std_msgs/Float32 lensSag
 std_msgs/Float32 lensErr
 std_msgs/Float32 lensTruePos
-std_msgs/Byte[] image
+std_msgs/String image
 std_msgs/Float32 gainFrac
 std_msgs/Int16[] focusVal
 std_msgs/UInt8[] focusConf

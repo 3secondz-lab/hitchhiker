@@ -8,7 +8,7 @@ openpilot/MeasurementReportQcomGnss measurementReport
 openpilot/ClockReport clockReport
 openpilot/DrMeasurementReport drMeasurementReport
 openpilot/DrSvPolyReport drSvPoly
-std_msgs/Byte[] rawLog
+std_msgs/String rawLog
 
 
 
