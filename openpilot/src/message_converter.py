@@ -34,8 +34,8 @@ class MessageConverter:
         """
 
         self.type_and_converter = {
-            'initData': om.InitData,
-            'frame': om.FrameData,
+            # 'initData': om.InitData,
+            'frame': [om.FrameData, self._frame],
             'gpsNMEA': om.GPSNMEAData,
             'can': om.CanDataList,
             'thermal': om.ThermalData,
@@ -188,7 +188,7 @@ class MessageConverter:
 
         self.dict_pub = {}
         for s in self.list_service:
-            self.dict_pub[s] = rospy.Publisher('~' + s, self.type_and_converter[s], queue_size=1)
+            self.dict_pub[s] = rospy.Publisher('~' + s, self.type_and_converter[s][0], queue_size=1)
 
         for k, v in self.dict_pub.items():
             print('Name : {}, Type : {}'.format(k, v.type))
@@ -196,56 +196,121 @@ class MessageConverter:
     def publish(self, submaster):
         # Assume submaster is updated
         for s in self.list_service:
-            if submaster.updated[s] and submaster.valid[s]:
-                msg = self.type_and_converter[s][1](submaster)
+            try:
+                if submaster.updated[s] and submaster.valid[s]:
+                    msg = self.type_and_converter[s][1](submaster)
 
-                self.dict_pub[s].publish(msg)
+                    self.dict_pub[s].publish(msg)
+            except KeyError:
+                rospy.loginfo('Key {} is not available'.format(s))
 
-    def initData(self, submaster):
-        name = 'initData'
-        m = om.InitData()
+    # def _initData(self, submaster):
+    #     name = 'initData'
+    #     m = self.type_and_converter[name][0]()
+    #     d = submaster.data[name]
+    #
+    #     m.header.seq = submaster.frame
+    #     m.header.stamp = rospy.Time.from_sec(submaster.logMonoTime[name] / 1e9)
+    #
+    #     m.kernelArgs.data = d.kernelArgs
+    #     m.kernelVersion.data = d.kernelVersion
+    #     m.gctx.data = d.gctx
+    #     m.dongleId.data = d.dongleId
+    #
+    #     m.deviceType.data = d.deviceType
+    #     m.version.data = d.version
+    #     m.gitCommit.data = d.gitCommit
+    #     m.gitBranch.data = d.gitBranch
+    #     m.gitRemote.data = d.gitRemote
+    #
+    #     m.androidBuildInfo.data = d.androidBuildInfo
+    #     m.androidSensors.data = d.androidSensors
+    #     m.androidProperties.data = d.androidProperties
+    #     m.chffrAndroidExtra.data = d.chffrAndroidExtra
+    #     m.iosBuildInfo.data = d.iosBuildInfo
+    #
+    #     m.pandaInfo.data = d.pandaInfo
+    #
+    #     m.dirty.data = d.dirty
+    #     m.passive.data = d.passive
+    #     m.params.data = d.params
+    #
+    #     return m
+
+    def _frame(self, submaster):
+        name = 'frame'
+        m = self.type_and_converter[name][0]()
         d = submaster.data[name]
 
         m.header.seq = submaster.frame
         m.header.stamp = rospy.Time.from_sec(submaster.logMonoTime[name] / 1e9)
 
-        m.kernelArgs = d.kernelArgs
+        m.frameId.data = d.frameId
+        m.encodeId.data = d.encodeId
+        m.timestampEof.data = d.timestampEof
+        m.frameLength.data = d.frameLength
+        m.integLines.data = d.integLines
+        m.globalGain.data = d.globalGain
+        m.lensPos.data = d.lensPos
+        m.lensSag.data = d.lensSag
+        m.lensErr.data = d.lensErr
+        m.lensTruePos.data = d.lensTruePos
+        m.image.data = d.image.decode()
+        m.gainFrac.data = d.gainFrac
+        m.focusVal = d.focusVal
+        m.focusConf = d.focusConf
+        m.sharpnessScore = d.sharpnessScore
+        m.recoverState.data = d.recoverState
 
+        m.frameType.data = d.frameType.raw
+        m.timestampSof.data = d.timestampSof
+        m.transform = d.transform
 
+        m.AndroidCaptureResult.sensitivity.data = d.androidCaptureResult.sensitivity
+        m.AndroidCaptureResult.frameDuration.data = d.androidCaptureResult.frameDuration
+        m.AndroidCaptureResult.exposureTime.data = d.androidCaptureResult.exposureTime
+        m.AndroidCaptureResult.rollingShutterSkew.data = d.androidCaptureResult.rollingShutterSkew
+        m.AndroidCaptureResult.colorCorrectionTransform = d.androidCaptureResult.colorCorrectionTransform
+        m.AndroidCaptureResult.colorCorrectionGains = d.androidCaptureResult.colorCorrectionGains
+        m.AndroidCaptureResult.displayRotation.data = d.androidCaptureResult.displayRotation
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return m
 
 
 if __name__ == '__main__':
     # For test
-    # rospy.init_node('msg_conv_test')
+    rospy.init_node('msg_conv_test')
 
     dict_data = {
-        'can': None,
-        'thermal': None,
-        'sensorEvents': None
+        'frame': None
     }
 
-    print(dict_data.keys())
-
-    data = messaging.new_message('initData')
+    pubmaster = messaging.PubMaster(dict_data.keys())
+    submaster = messaging.SubMaster(dict_data.keys())
 
     mconv = MessageConverter(list(dict_data.keys()))
-    capnp._DynamicStructBuilder
+
+    rate = rospy.Rate(2.0)
+
+    while not rospy.is_shutdown():
+        for k in dict_data.keys():
+            d = messaging.new_message(k)
+            pubmaster.send(k, d)
+
+        submaster.update()
+
+        mconv.publish(submaster)
+
+        rate.sleep()
+
+
+
+    # dict_data = {
+    #     'can': None,
+    #     'thermal': None,
+    #     'sensorEvents': None
+    # }
+
     # pub1 = rospy.Publisher('~can', om.CanDataList, queue_size=1)
     # pub2 = rospy.Publisher('~thermal', om.ThermalData, queue_size=1)
     # pub3 = rospy.Publisher('~sensorEvents', om.SensorEventDataList, queue_size=1)

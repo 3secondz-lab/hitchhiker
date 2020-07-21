@@ -17,7 +17,7 @@ std_msgs/Float32 gainFrac
 std_msgs/Int16[] focusVal
 std_msgs/UInt8[] focusConf
 std_msgs/UInt16[] sharpnessScore
-std_msgs/Int32[] recoverState
+std_msgs/Int32 recoverState
 
 std_msgs/UInt64 frameType
 std_msgs/UInt64 timestampSof
