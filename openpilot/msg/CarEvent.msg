@@ -2,7 +2,7 @@
 
 std_msgs/Header header
 
-std_msgs/UInt64 name
+std_msgs/String name
 std_msgs/Bool enable
 std_msgs/Bool noEntry
 std_msgs/Bool warning

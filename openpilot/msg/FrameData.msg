@@ -19,11 +19,11 @@ std_msgs/UInt8[] focusConf
 std_msgs/UInt16[] sharpnessScore
 std_msgs/Int32 recoverState
 
-std_msgs/UInt64 frameType
+std_msgs/String frameType
 std_msgs/UInt64 timestampSof
 std_msgs/Float32[] transform
 
-openpilot/AndroidCaptureResult AndroidCaptureResult
+openpilot/AndroidCaptureResult androidCaptureResult
 
 
 

@@ -20,9 +20,9 @@ std_msgs/Float32 angleOffset
 std_msgs/Bool sensorValid
 std_msgs/Bool commIssue
 std_msgs/Bool posenetValid
-std_msgs/UInt64 desire
-std_msgs/UInt64 laneChangeState
-std_msgs/UInt64 laneChangeDirection
+std_msgs/String desire
+std_msgs/String laneChangeState
+std_msgs/String laneChangeDirection
 
 
 

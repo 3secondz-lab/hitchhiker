@@ -2,7 +2,7 @@
 
 std_msgs/Header header
 
-std_msgs/UInt64 type
+std_msgs/String type
 
 
 

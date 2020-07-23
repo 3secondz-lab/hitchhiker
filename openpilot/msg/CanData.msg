@@ -1,12 +1,9 @@
 # CanData Message
 
-std_msgs/Header header
-
 std_msgs/UInt32 address
 std_msgs/UInt16 busTime
 std_msgs/String dat
 std_msgs/UInt8 src
-
 
 
 # struct CanData {

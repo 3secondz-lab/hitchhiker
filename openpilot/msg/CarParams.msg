@@ -13,8 +13,8 @@ std_msgs/Bool enableApgs
 
 std_msgs/Float32 minEnableSpeed
 std_msgs/Float32 minSteerSpeed
-std_msgs/UInt64 safetyModel
-std_msgs/UInt64 safetyModelPassive
+std_msgs/String safetyModel
+std_msgs/String safetyModelPassive
 std_msgs/Int16 safetyParam
 
 std_msgs/Float32[] steerMaxBP
@@ -51,7 +51,7 @@ std_msgs/Bool directAccelControl
 std_msgs/Bool stoppingControl
 std_msgs/Float32 startAccel
 std_msgs/Float32 steerRateCost
-std_msgs/UInt64 steerControlType
+std_msgs/String steerControlType
 std_msgs/Bool radarOffCan
 
 std_msgs/Float32 steerActuatorDelay
@@ -59,12 +59,12 @@ std_msgs/Bool openpilotLongitudinalControl
 std_msgs/String carVin
 std_msgs/Bool isPandaBlack
 std_msgs/Bool dashcamOnly
-std_msgs/UInt64 transmissionType
+std_msgs/String transmissionType
 openpilot/CarFw[] carFw
 std_msgs/Float32 radarTimeStep
 std_msgs/Bool communityFeature
-std_msgs/UInt64 fingerprintSource
-std_msgs/UInt64 networkLocation
+std_msgs/String fingerprintSource
+std_msgs/String networkLocation
 
 
 

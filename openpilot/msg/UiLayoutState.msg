@@ -2,7 +2,7 @@
 
 std_msgs/Header header
 
-std_msgs/UInt64 activeApp
+std_msgs/String activeApp
 std_msgs/Bool sidebarCollapsed
 std_msgs/Bool mapEnabled
 std_msgs/Bool mockEngaged

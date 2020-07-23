@@ -17,7 +17,7 @@ openpilot/SensorVec gyroUncalibrated
 std_msgs/Float32 proximity
 std_msgs/Float32 light
 
-std_msgs/UInt64 source
+std_msgs/String source
 
 
 

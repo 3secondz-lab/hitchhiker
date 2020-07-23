@@ -2,9 +2,9 @@
 
 std_msgs/Header header
 
-std_msgs/UInt64 type
+std_msgs/String type
 std_msgs/Float32 distance
-std_msgs/UInt64 action
+std_msgs/String action
 std_msgs/Bool resuming
 
 

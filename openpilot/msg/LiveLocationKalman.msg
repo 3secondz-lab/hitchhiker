@@ -30,7 +30,7 @@ openpilot/MeasurementKalman angularVelocityCalibrated
 
 std_msgs/Int32 gpsWeek
 std_msgs/Float64 gpsTimeOfWeek
-std_msgs/UInt64 status
+std_msgs/String status
 std_msgs/Int64 unixTimestampMillis
 std_msgs/Bool inputsOK
 std_msgs/Bool posenetOK

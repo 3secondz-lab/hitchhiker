@@ -38,7 +38,7 @@ std_msgs/Bool espDisabled
 openpilot/CruiseState cruiseState
 
 # gear
-std_msgs/UInt16 gearShifter
+std_msgs/String gearShifter
 
 # button presses
 openpilot/ButtonEvent[] buttonEvents

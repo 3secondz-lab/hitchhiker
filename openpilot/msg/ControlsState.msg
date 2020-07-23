@@ -6,10 +6,10 @@ std_msgs/UInt64[] canMonoTimes
 std_msgs/UInt64 planMonoTime
 std_msgs/UInt64 pathPlanMonoTime
 
-std_msgs/UInt64 state
+std_msgs/String state
 std_msgs/Float32 vEgo
 std_msgs/Float32 vEgoRaw
-std_msgs/UInt64 longControlState
+std_msgs/String longControlState
 std_msgs/Float32 vPid
 std_msgs/Float32 vTargetLead
 std_msgs/Float32 upAccelCmd
@@ -34,8 +34,8 @@ std_msgs/Float32 vCruise
 std_msgs/Bool rearViewCam
 std_msgs/String alertText1
 std_msgs/String alertText2
-std_msgs/UInt64 alertStatus
-std_msgs/UInt64 alertSize
+std_msgs/String alertStatus
+std_msgs/String alertSize
 std_msgs/Float32 alertBlinkingRate
 std_msgs/String alertType
 std_msgs/UInt64 alertSound
@@ -51,9 +51,9 @@ std_msgs/Bool decelForTurn
 std_msgs/Bool decelForModel
 std_msgs/UInt32 canErrorCounter
 
-std_msgs/UInt64 indiState
-std_msgs/UInt64 pidState
-std_msgs/UInt64 lqrState
+openpilot/LateralINDIState indiState
+openpilot/LateralPIDState pidState
+openpilot/LateralLQRState lqrState
 
 
 

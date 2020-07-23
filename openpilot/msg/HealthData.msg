@@ -7,21 +7,22 @@ std_msgs/UInt32 voltage
 std_msgs/UInt32 current
 std_msgs/Bool ignitionLine
 std_msgs/Bool controlsAllowed
+std_msgs/Bool gasInterceptorDetected
 
 std_msgs/Bool hasGps
 std_msgs/UInt32 canSendErrs
 std_msgs/UInt32 canFwdErrs
 std_msgs/UInt32 canRxErrs
 std_msgs/UInt32 gmlanSendErrs
-std_msgs/UInt64 hwType
+std_msgs/String hwType
 std_msgs/UInt16 fanSpeedRpm
-std_msgs/UInt64 usbPowerMode
+std_msgs/String usbPowerMode
 std_msgs/Bool ignitionCan
-std_msgs/UInt64 safetyModel
-std_msgs/UInt64 faultStatus
+std_msgs/String safetyModel
+std_msgs/String faultStatus
 std_msgs/Bool powerSaveEnabled
 std_msgs/UInt32 uptime
-std_msgs/UInt64[] faults
+std_msgs/String[] faults
 
 
 

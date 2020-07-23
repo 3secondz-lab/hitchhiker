@@ -20,7 +20,7 @@ std_msgs/Float32 aStart
 std_msgs/Float32 jerkFactor
 std_msgs/Bool hasLead
 std_msgs/Bool fcw
-std_msgs/UInt64 longitudinalPlanSource
+std_msgs/String longitudinalPlanSource
 
 # gps trajectory in car frame
 openpilot/GpsTrajectory gpsTrajectory

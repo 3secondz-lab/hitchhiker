@@ -11,7 +11,7 @@ std_msgs/Int64 timestamp
 
 std_msgs/Int32 centerFreq0
 std_msgs/Int32 centerFreq1
-std_msgs/UInt64 channelWidth
+std_msgs/String channelWidth
 std_msgs/String operatorFriendlyName
 std_msgs/String venueName
 std_msgs/Bool is80211mcResponder

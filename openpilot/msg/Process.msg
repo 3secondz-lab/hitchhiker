@@ -21,3 +21,30 @@ std_msgs/Int32 processor
 
 std_msgs/String[] cmdline
 std_msgs/String[] exe
+
+
+
+
+#  struct Process {
+#    pid @0 :Int32;
+#    name @1 :Text;
+#    state @2 :UInt8;
+#    ppid @3 :Int32;
+#
+#    cpuUser @4 :Float32;
+#    cpuSystem @5 :Float32;
+#    cpuChildrenUser @6 :Float32;
+#    cpuChildrenSystem @7 :Float32;
+#    priority @8 :Int64;
+#    nice @9 :Int32;
+#    numThreads @10 :Int32;
+#    startTime @11 :Float64;
+#
+#    memVms @12 :UInt64;
+#    memRss @13 :UInt64;
+#
+#    processor @14 :Int32;
+#
+#    cmdline @15 :List(Text);
+#    exe @16 :Text;
+#  }

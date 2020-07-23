@@ -34,7 +34,7 @@ std_msgs/Float32[] accel
 
 openpilot/Accuracy accuracy
 
-std_msgs/UInt64 source
+std_msgs/String source
 # if we are fixing a location in the past
 std_msgs/UInt64 fixMonoTime
 

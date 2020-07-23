@@ -18,15 +18,15 @@ std_msgs/String batteryStatus
 std_msgs/Int32 batteryCurrent
 std_msgs/Int32 batteryVoltage
 std_msgs/Bool usbOnline
-std_msgs/UInt64 networkType
+std_msgs/String networkType
 std_msgs/UInt32 offroadPowerUsage
-std_msgs/UInt64 networkStrength
+std_msgs/String networkStrength
 
 std_msgs/UInt16 fanSpeed
 std_msgs/Bool started
 std_msgs/UInt64 startedTs
 
-std_msgs/UInt64 thermalStatus
+std_msgs/String thermalStatus
 std_msgs/Bool chargingError
 std_msgs/Bool chargingDisabled
 

@@ -4,7 +4,7 @@ std_msgs/Header header
 
 # picture from camera
 std_msgs/UInt32 frameId
-std_msgs/UInt64 type
+std_msgs/String type
 # index of encoder from start of route
 std_msgs/UInt32 encodeId
 # minute long segment this frame is in

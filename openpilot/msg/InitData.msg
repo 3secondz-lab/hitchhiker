@@ -8,7 +8,7 @@ std_msgs/String kernelVersion
 std_msgs/String gctx
 std_msgs/String dongleId
 
-std_msgs/UInt64 deviceType
+std_msgs/String deviceType
 std_msgs/String version
 std_msgs/String gitCommit
 std_msgs/String gitBranch

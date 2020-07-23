@@ -2,7 +2,7 @@
 
 std_msgs/Header header
 
-std_msgs/UInt64[] errors
+std_msgs/String[] errors
 openpilot/RadarPoint[] points
 
 # which packets this state came from

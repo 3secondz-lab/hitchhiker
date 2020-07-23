@@ -27,7 +27,7 @@ std_msgs/Float32 accuracy
 # Milliseconds since January 1, 1970.
 std_msgs/Int64 timestamp
 
-std_msgs/UInt64 source
+std_msgs/String source
 
 # Represents NED velocity in m/s.
 std_msgs/Float32[] vNED

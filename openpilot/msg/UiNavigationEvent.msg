@@ -2,8 +2,8 @@
 
 std_msgs/Header header
 
-std_msgs/UInt64 type
-std_msgs/UInt64 status
+std_msgs/String type
+std_msgs/String status
 std_msgs/Float32 distanceTo
 openpilot/ECEFPoint endRoadPoint
 

@@ -6,5 +6,8 @@ Openpilot - ROS message converter
 | Cereal | ROS |
 |:--------:|:-----:|
 | Data | std_msgs/String |
-| Enum | std_msgs/UInt64 |
+| Enum | std_msgs/String |
 | xxxDEPRECATED | (Ignored) |
+| (Duplicated name) | 1* |
+
+1. There are some duplicated names in different structures. They are renamed with their superclass name (ex. LeadData in ModelData and RadarState -> LeadDataModel and LeadDataRadar).

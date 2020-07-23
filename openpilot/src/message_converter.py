@@ -33,21 +33,25 @@ class MessageConverter:
         :param list_service: List of Openpilot services to subscribe
         """
 
-        self.type_and_converter = {
+        self.dict_type = {
             # 'initData': om.InitData,
-            'frame': [om.FrameData, self._frame],
+            'frame': om.FrameData,
             'gpsNMEA': om.GPSNMEAData,
             'can': om.CanDataList,
+            'can_element': om.CanData,
             'thermal': om.ThermalData,
             'controlsState': om.ControlsState,
             'model': om.ModelData,
             'features': om.CalibrationFeatures,
             'sensorEvents': om.SensorEventDataList,
+            'sensorEvents_element': om.SensorEventData,
             'health': om.HealthData,
             'radarState': om.RadarState,
             'encodeIdx': om.EncodeIndex,
             'liveTracks': om.LiveTracksList,
+            'liveTracks_element': om.LiveTracks,
             'sendcan': om.CanDataList,
+            'sendcan_element': om.CanData,
             'logMessage': sm.String,
             'liveCalibration': om.LiveCalibrationData,
             'androidLog': om.AndroidLogEntry,
@@ -57,9 +61,12 @@ class MessageConverter:
             'plan': om.Plan,
             'liveLocation': om.LiveLocationData,
             'ethernetData': om.EthernetPacketList,
+            'ethernetData_element': om.EthernetPacket,
             'navUpdate': om.NavUpdate,
             'cellInfo': om.CellInfoList,
+            'cellInfo_element': om.CellInfo,
             'wifiScan': om.WifiScanList,
+            'wifiScan_element': om.WifiScan,
             'androidGnss': om.AndroidGnss,
             'qcomGnss': om.QcomGnss,
             'lidarPts': om.LidarPts,
@@ -74,9 +81,11 @@ class MessageConverter:
             'gpsPlannerPlan': om.GPSPlannerPlan,
             'applanixRaw': sm.Byte,
             'trafficEvents': om.TrafficEventList,
+            'trafficEvents_element': om.TrafficEvent,
             'liveLocationTiming': om.LiveLocationData,
             'liveLocationCorrected': om.LiveLocationData,
             'orbObservation': om.OrbObservationList,
+            'orbObservation_element': om.OrbObservation,
             'gpsLocationExternal': om.GpsLocationData,
             'location': om.LiveLocationData,
             'uiNavigationEvent': om.UiNavigationEvent,
@@ -96,6 +105,7 @@ class MessageConverter:
             'kalmanOdometry': om.KalmanOdometry,
             'thumbnail': om.Thumbnail,
             'carEvents': om.CarEventList,
+            'carEvents_element': om.CarEvent,
             'carParams': om.CarParams,
             'frontFrame': om.FrameData,
             'dMonitoringState': om.DMonitoringState,
@@ -188,7 +198,7 @@ class MessageConverter:
 
         self.dict_pub = {}
         for s in self.list_service:
-            self.dict_pub[s] = rospy.Publisher('~' + s, self.type_and_converter[s][0], queue_size=1)
+            self.dict_pub[s] = rospy.Publisher('~' + s, self.dict_type[s], queue_size=1)
 
         for k, v in self.dict_pub.items():
             print('Name : {}, Type : {}'.format(k, v.type))
@@ -198,92 +208,161 @@ class MessageConverter:
         for s in self.list_service:
             try:
                 if submaster.updated[s] and submaster.valid[s]:
-                    msg = self.type_and_converter[s][1](submaster)
+                    msg = self.convert(s, submaster)
+                    # msg = self.type_and_converter[s][1](submaster)
 
                     self.dict_pub[s].publish(msg)
             except KeyError:
                 rospy.loginfo('Key {} is not available'.format(s))
 
-    # def _initData(self, submaster):
-    #     name = 'initData'
-    #     m = self.type_and_converter[name][0]()
-    #     d = submaster.data[name]
-    #
-    #     m.header.seq = submaster.frame
-    #     m.header.stamp = rospy.Time.from_sec(submaster.logMonoTime[name] / 1e9)
-    #
-    #     m.kernelArgs.data = d.kernelArgs
-    #     m.kernelVersion.data = d.kernelVersion
-    #     m.gctx.data = d.gctx
-    #     m.dongleId.data = d.dongleId
-    #
-    #     m.deviceType.data = d.deviceType
-    #     m.version.data = d.version
-    #     m.gitCommit.data = d.gitCommit
-    #     m.gitBranch.data = d.gitBranch
-    #     m.gitRemote.data = d.gitRemote
-    #
-    #     m.androidBuildInfo.data = d.androidBuildInfo
-    #     m.androidSensors.data = d.androidSensors
-    #     m.androidProperties.data = d.androidProperties
-    #     m.chffrAndroidExtra.data = d.chffrAndroidExtra
-    #     m.iosBuildInfo.data = d.iosBuildInfo
-    #
-    #     m.pandaInfo.data = d.pandaInfo
-    #
-    #     m.dirty.data = d.dirty
-    #     m.passive.data = d.passive
-    #     m.params.data = d.params
-    #
-    #     return m
-
-    def _frame(self, submaster):
-        name = 'frame'
-        m = self.type_and_converter[name][0]()
-        d = submaster.data[name]
+    def convert(self, name, submaster):
+        m = self.dict_type[name]()
 
         m.header.seq = submaster.frame
         m.header.stamp = rospy.Time.from_sec(submaster.logMonoTime[name] / 1e9)
 
-        m.frameId.data = d.frameId
-        m.encodeId.data = d.encodeId
-        m.timestampEof.data = d.timestampEof
-        m.frameLength.data = d.frameLength
-        m.integLines.data = d.integLines
-        m.globalGain.data = d.globalGain
-        m.lensPos.data = d.lensPos
-        m.lensSag.data = d.lensSag
-        m.lensErr.data = d.lensErr
-        m.lensTruePos.data = d.lensTruePos
-        m.image.data = d.image.decode()
-        m.gainFrac.data = d.gainFrac
-        m.focusVal = d.focusVal
-        m.focusConf = d.focusConf
-        m.sharpnessScore = d.sharpnessScore
-        m.recoverState.data = d.recoverState
+        d = submaster.data[name]
 
-        m.frameType.data = d.frameType.raw
-        m.timestampSof.data = d.timestampSof
-        m.transform = d.transform
-
-        m.AndroidCaptureResult.sensitivity.data = d.androidCaptureResult.sensitivity
-        m.AndroidCaptureResult.frameDuration.data = d.androidCaptureResult.frameDuration
-        m.AndroidCaptureResult.exposureTime.data = d.androidCaptureResult.exposureTime
-        m.AndroidCaptureResult.rollingShutterSkew.data = d.androidCaptureResult.rollingShutterSkew
-        m.AndroidCaptureResult.colorCorrectionTransform = d.androidCaptureResult.colorCorrectionTransform
-        m.AndroidCaptureResult.colorCorrectionGains = d.androidCaptureResult.colorCorrectionGains
-        m.AndroidCaptureResult.displayRotation.data = d.androidCaptureResult.displayRotation
+        if type(d) == capnp._DynamicStructReader:
+            m = self.convert_dict(m, d.to_dict())
+        elif type(d) == capnp._DynamicListReader:
+            list_d = list(d)
+            att = getattr(m, name)
+            for v in list_d:
+                m_tmp = self.dict_type[name + '_element']()
+                m_tmp = self.convert_dict(m_tmp, v.to_dict())
+                att.append(m_tmp)
+        else:
+            print('Unsupported type : {}'.format(type(d)))
 
         return m
 
+    def convert_dict(self, msg, dict_data):
+        for k, v in dict_data.items():
+            # print('{} : {}'.format(k, v))
+            if 'deprecated' in k.lower():
+                continue
 
-if __name__ == '__main__':
+            if type(v) == list:
+                setattr(msg, k, v)
+            elif type(v) == dict:
+                if hasattr(msg, k):
+                    att = getattr(msg, k)
+                    self.convert_dict(att, v)
+                else:
+                    for k2, v2 in v.items():
+                        att = getattr(msg, k2)
+                        self.convert_dict(att, v2)
+            else:
+                att = getattr(msg, k)
+                setattr(att, 'data', v)
+
+        return msg
+
+
+def test():
     # For test
     rospy.init_node('msg_conv_test')
 
     dict_data = {
-        'frame': None
+        # 'frame': None,
+        # 'gpsNMEA': None,
+        # 'can': None,
+        # 'thermal': None,
+        # 'controlsState': None,
+        # 'model': None,
+        # 'features': None,
+        # 'sensorEvents': None,
+        'health': None,
     }
+
+    # # frame
+    # dict_data['frame'] = messaging.new_message('frame')
+    # dict_data['frame'].frame.image = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+    # dict_data['frame'].frame.focusVal = [1, 2, 3, -4, -5]
+    # dict_data['frame'].frame.focusConf = [0, 128, 255]
+    # dict_data['frame'].frame.sharpnessScore = [0, 65535, 500]
+    # dict_data['frame'].frame.frameType = 'neo'
+    # dict_data['frame'].frame.transform = [-31.56, 12321.954]
+    # dict_data['frame'].frame.androidCaptureResult.colorCorrectionTransform = [4, -7, 9]
+    # dict_data['frame'].frame.androidCaptureResult.colorCorrectionGains = [4.0, 79.0, -53.4]
+
+    # # gpsNMEA
+    # dict_data['gpsNMEA'] = messaging.new_message('gpsNMEA')
+    # dict_data['gpsNMEA'].gpsNMEA.nmea = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+
+    # # can
+    # dict_data['can'] = messaging.new_message('can', size=2)
+    # dict_data['can'].can[0].dat = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+    # dict_data['can'].can[1].dat = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+
+    # # thermal
+    # dict_data['thermal'] = messaging.new_message('thermal')
+    # dict_data['thermal'].thermal.batteryStatus = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+    # dict_data['thermal'].thermal.networkType = 'cell5G'
+    # dict_data['thermal'].thermal.networkStrength = 'good'
+    # dict_data['thermal'].thermal.thermalStatus = 'yellow'
+
+    # # controlsState
+    # dict_data['controlsState'] = messaging.new_message('controlsState')
+    # dict_data['controlsState'].controlsState.canMonoTimes = [231423, 452625, 567547]
+    # dict_data['controlsState'].controlsState.state = 'enabled'
+    # dict_data['controlsState'].controlsState.longControlState = 'starting'
+    # dict_data['controlsState'].controlsState.alertText1 = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+    # dict_data['controlsState'].controlsState.alertText2 = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
+    # dict_data['controlsState'].controlsState.alertStatus = 'normal'
+    # dict_data['controlsState'].controlsState.alertSize = 'mid'
+    # dict_data['controlsState'].controlsState.alertSound = 'chimePrompt'
+    # dict_data['controlsState'].controlsState.lateralControlState.pidState = log.ControlsState.LateralPIDState.new_message()
+    # dict_data['controlsState'].controlsState.lateralControlState.pidState.output = 846.546
+
+    # # model
+    # dict_data['model'] = messaging.new_message('model')
+    # dict_data['model'].model.path.points = [-13.433, 343.0087, 437932.2934]
+    # dict_data['model'].model.path.stds = [-13452.433, 34423.008, 432.2307]
+    # dict_data['model'].model.path.poly = [-45.3, 78.87, 96.2174]
+    # dict_data['model'].model.leftLane.points = [-1879.433897, 379843.0654087, 4356847932.24685934]
+    # dict_data['model'].model.leftLane.stds = [-8.689, 89467.87946, 5143.54]
+    # dict_data['model'].model.leftLane.poly = [5.5684, -546.5, 486]
+    # dict_data['model'].model.rightLane.points = [4568.5648, 4687.456, -8.808796]
+    # dict_data['model'].model.rightLane.stds = [-534.87, 4253.867, 2543.243]
+    # dict_data['model'].model.rightLane.poly = [978.64, 243.563, -54.532]
+    # dict_data['model'].model.lead.relAStd = 876.98
+    # dict_data['model'].model.freePath = [234.43, 567.876, -54.5]
+    # dict_data['model'].model.settings.boxProjection = [345.65, 23.65]
+    # dict_data['model'].model.settings.yuvCorrection = [32.8, 438.9]
+    # dict_data['model'].model.settings.inputTransform = [9.0, 8.67]
+    # dict_data['model'].model.leadFuture.relAStd = 445.578
+    # dict_data['model'].model.speed = [34.768, 243.657]
+    # dict_data['model'].model.meta.desirePrediction = [45.5674, 34.7]
+    # dict_data['model'].model.meta.desireState = [23.65, 23.87]
+    # dict_data['model'].model.longitudinal.distances = [43.675, 243.567]
+    # dict_data['model'].model.longitudinal.speeds = [4.6, 2435.76]
+    # dict_data['model'].model.longitudinal.accelerations = [43.6, 324.8]
+
+    # # features
+    # dict_data['features'] = messaging.new_message('features')
+    # dict_data['features'].features.p0 = [3214.32, 213.1]
+    # dict_data['features'].features.p1 = [34.3, 2.1324]
+    # dict_data['features'].features.status = [-7, 5, 3]
+
+    # # sensorEvents
+    # dict_data['sensorEvents'] = messaging.new_message('sensorEvents', size=2)
+    # dict_data['sensorEvents'].sensorEvents[0].acceleration.v = [14.1, -324.1]
+    # dict_data['sensorEvents'].sensorEvents[0].acceleration.status = 7
+    # dict_data['sensorEvents'].sensorEvents[0].source = 'bmp280'
+    # dict_data['sensorEvents'].sensorEvents[1].proximity = 234.1
+    # dict_data['sensorEvents'].sensorEvents[1].source = 'velodyne'
+
+    # health
+    dict_data['health'] = messaging.new_message('health')
+    dict_data['health'].health.voltage = 20000
+    dict_data['health'].health.usbPowerMode = 'cdp'
+    dict_data['health'].health.hwType = 'greyPanda'
+    dict_data['health'].health.faultStatus = 'faultTemp'
+    dict_data['health'].health.faults = ['interruptRateGmlan', 'interruptRateUsb']
+
+
 
     pubmaster = messaging.PubMaster(dict_data.keys())
     submaster = messaging.SubMaster(dict_data.keys())
@@ -293,8 +372,7 @@ if __name__ == '__main__':
     rate = rospy.Rate(2.0)
 
     while not rospy.is_shutdown():
-        for k in dict_data.keys():
-            d = messaging.new_message(k)
+        for k, d in dict_data.items():
             pubmaster.send(k, d)
 
         submaster.update()
@@ -303,184 +381,8 @@ if __name__ == '__main__':
 
         rate.sleep()
 
+    print('Test finished')
 
 
-    # dict_data = {
-    #     'can': None,
-    #     'thermal': None,
-    #     'sensorEvents': None
-    # }
-
-    # pub1 = rospy.Publisher('~can', om.CanDataList, queue_size=1)
-    # pub2 = rospy.Publisher('~thermal', om.ThermalData, queue_size=1)
-    # pub3 = rospy.Publisher('~sensorEvents', om.SensorEventDataList, queue_size=1)
-    #
-    # pubmaster = messaging.PubMaster(dict_data.keys())
-    # submaster = messaging.SubMaster(dict_data.keys())
-    #
-    # rate = rospy.Rate(2.0)
-    #
-    # while not rospy.is_shutdown():
-    #     d1 = messaging.new_message('can', size=5)
-    #     for i in range(0, len(d1.can)):
-    #         # address : UInt32
-    #         # busTime : UInt16
-    #         # dat : Data
-    #         # src : UInt8
-    #         d1.can[i].address = random.randint(np.iinfo('uint32').min, np.iinfo('uint32').max)
-    #         d1.can[i].busTime = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #         d1.can[i].dat = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
-    #         d1.can[i].src = random.randint(np.iinfo('uint8').min, np.iinfo('uint8').max)
-    #
-        # d2 = messaging.new_message('thermal')
-        # d2.thermal.cpu0 = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.cpu1 = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.cpu2 = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.cpu3 = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.mem = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.gpu = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.bat = random.randint(np.iinfo('uint32').min, np.iinfo('uint32').max)
-    #     d2.thermal.pa0 = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.freeSpace = random.random()*1e5
-    #     d2.thermal.batteryPercent = random.randint(np.iinfo('int16').min, np.iinfo('int16').max)
-    #     d2.thermal.batteryStatus = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(10))
-    #     d2.thermal.batteryCurrent = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d2.thermal.batteryVoltage = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d2.thermal.usbOnline = bool(random.randint(0, 1))
-    #     d2.thermal.networkType = random.randint(0, 5)
-    #     d2.thermal.offroadPowerUsage = random.randint(np.iinfo('uint32').min, np.iinfo('uint32').max)
-    #     d2.thermal.networkStrength = random.randint(0, 4)
-    #     d2.thermal.fanSpeed = random.randint(np.iinfo('uint16').min, np.iinfo('uint16').max)
-    #     d2.thermal.started = bool(random.randint(0, 1))
-    #     d2.thermal.startedTs = random.randint(np.iinfo('uint64').min, np.iinfo('uint64').max)
-    #     d2.thermal.thermalStatus = random.randint(0, 3)
-    #     d2.thermal.chargingError = bool(random.randint(0, 1))
-    #     d2.thermal.chargingDisabled = bool(random.randint(0, 1))
-    #     d2.thermal.memUsedPercent = random.randint(np.iinfo('int8').min, np.iinfo('int8').max)
-    #     d2.thermal.cpuPerc = random.randint(np.iinfo('int8').min, np.iinfo('int8').max)
-    #
-    #     d3 = messaging.new_message('sensorEvents', size=2)
-    #
-    #     d3.sensorEvents[0].version = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d3.sensorEvents[0].sensor = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d3.sensorEvents[0].type = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d3.sensorEvents[0].timestamp = random.randint(np.iinfo('int64').min, np.iinfo('int64').max)
-    #     d3.sensorEvents[0].source = random.randint(0, 7)
-    #     d3.sensorEvents[0].acceleration.status = random.randint(np.iinfo('int8').min, np.iinfo('int8').max)
-    #     d3.sensorEvents[0].acceleration.v = [random.random() * 100 for _ in range(10)]
-    #
-    #     d3.sensorEvents[1].version = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d3.sensorEvents[1].sensor = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d3.sensorEvents[1].type = random.randint(np.iinfo('int32').min, np.iinfo('int32').max)
-    #     d3.sensorEvents[1].timestamp = random.randint(np.iinfo('int64').min, np.iinfo('int64').max)
-    #     d3.sensorEvents[1].source = random.randint(0, 7)
-    #     d3.sensorEvents[1].light = random.random() * 100
-    #
-    #     dict_data = {
-    #         'can': d1,
-    #         'thermal': d2,
-    #         'sensorEvents': d3
-    #     }
-    #
-    #     for k, v in dict_data.items():
-    #         if bool(random.randint(0, 1)):
-    #             pubmaster.send(k, v)
-    #         else:
-    #             rospy.loginfo('{} : Not published'.format(k))
-    #
-    #     submaster.update()
-    #
-    #     if submaster.updated['can'] and submaster.valid['can']:
-    #         m1 = om.CanDataList()
-    #
-    #         m1.header.seq = submaster.frame
-    #         m1.header.stamp = rospy.Time.from_sec(submaster.logMonoTime['can'] / 1e9)
-    #
-    #         for d in submaster.data['can']:
-    #             can_data = om.CanData()
-    #
-    #             can_data.header = m1.header
-    #             can_data.address.data = d.address
-    #             can_data.busTime.data = d.busTime
-    #             can_data.dat.data = d.dat.decode()
-    #             can_data.src.data = d.src
-    #
-    #             m1.can.append(can_data)
-    #
-    #         pub1.publish(m1)
-    #     else:
-    #         rospy.loginfo('can : not updated')
-    #
-    #     if submaster.updated['thermal'] and submaster.valid['thermal']:
-    #         m2 = om.ThermalData()
-    #
-    #         m2.header.seq = submaster.frame
-    #         m2.header.stamp = rospy.Time.from_sec(submaster.logMonoTime['thermal'] / 1e9)
-    #
-    #         m2.cpu0.data = submaster.data['thermal'].cpu0
-    #         m2.cpu1.data = submaster.data['thermal'].cpu1
-    #         m2.cpu2.data = submaster.data['thermal'].cpu2
-    #         m2.cpu3.data = submaster.data['thermal'].cpu3
-    #         m2.mem.data = submaster.data['thermal'].mem
-    #         m2.gpu.data = submaster.data['thermal'].gpu
-    #         m2.bat.data = submaster.data['thermal'].bat
-    #         m2.pa0.data = submaster.data['thermal'].pa0
-    #         m2.freeSpace.data = submaster.data['thermal'].freeSpace
-    #         m2.batteryPercent.data = submaster.data['thermal'].batteryPercent
-    #         m2.batteryStatus.data = submaster.data['thermal'].batteryStatus
-    #         m2.batteryCurrent.data = submaster.data['thermal'].batteryCurrent
-    #         m2.batteryVoltage.data = submaster.data['thermal'].batteryVoltage
-    #         m2.usbOnline.data = submaster.data['thermal'].usbOnline
-    #         m2.networkType.data = submaster.data['thermal'].networkType.raw
-    #         m2.offroadPowerUsage.data = submaster.data['thermal'].offroadPowerUsage
-    #         m2.networkStrength.data = submaster.data['thermal'].networkStrength.raw
-    #         m2.fanSpeed.data = submaster.data['thermal'].fanSpeed
-    #         m2.started.data = submaster.data['thermal'].started
-    #         m2.startedTs.data = submaster.data['thermal'].startedTs
-    #         m2.thermalStatus.data = submaster.data['thermal'].thermalStatus.raw
-    #         m2.chargingError.data = submaster.data['thermal'].chargingError
-    #         m2.chargingDisabled.data = submaster.data['thermal'].chargingDisabled
-    #         m2.memUsedPercent.data = submaster.data['thermal'].memUsedPercent
-    #         m2.cpuPerc.data = submaster.data['thermal'].cpuPerc
-    #
-    #         pub2.publish(m2)
-    #     else:
-    #         rospy.loginfo('thermal : not updated')
-    #
-    #     if submaster.updated['sensorEvents'] and submaster.valid['sensorEvents']:
-    #         m3 = om.SensorEventDataList()
-    #
-    #         m3.header.seq = submaster.frame
-    #         m3.header.stamp = rospy.Time.from_sec(submaster.logMonoTime['sensorEvents'] / 1e9)
-    #
-    #         s1 = om.SensorEventData()
-    #         s1.header = m3.header
-    #         s1.version.data = submaster.data['sensorEvents'][0].version
-    #         s1.sensor.data = submaster.data['sensorEvents'][0].sensor
-    #         s1.type.data = submaster.data['sensorEvents'][0].type
-    #         s1.timestamp.data = submaster.data['sensorEvents'][0].timestamp
-    #         s1.source.data = submaster.data['sensorEvents'][0].source.raw
-    #         for v in submaster.data['sensorEvents'][0].acceleration.v:
-    #             v_tmp = sm.Float32()
-    #             v_tmp.data = v
-    #             s1.acceleration.v.append(v_tmp)
-    #         s1.acceleration.status.data = submaster.data['sensorEvents'][0].acceleration.status
-    #
-    #         s2 = om.SensorEventData()
-    #         s2.header = m3.header
-    #         s2.version.data = submaster.data['sensorEvents'][1].version
-    #         s2.sensor.data = submaster.data['sensorEvents'][1].sensor
-    #         s2.type.data = submaster.data['sensorEvents'][1].type
-    #         s2.timestamp.data = submaster.data['sensorEvents'][1].timestamp
-    #         s2.source.data = submaster.data['sensorEvents'][1].source.raw
-    #         s2.light.data = submaster.data['sensorEvents'][1].light
-    #
-    #         m3.sensorEvents = [s1, s2]
-    #
-    #         pub3.publish(m3)
-    #     else:
-    #         rospy.loginfo('sensorEvents : not updated')
-    #
-    #     rate.sleep()
-    #
-    # print('Test finished')
+if __name__ == '__main__':
+    test()
