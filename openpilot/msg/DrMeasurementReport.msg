@@ -32,7 +32,7 @@ std_msgs/Float32 clockFrequencyBias
 std_msgs/Float32 clockFrequencyUncertainty
 std_msgs/UInt8 frequencySource
 
-std_msgs/UInt64 source
+std_msgs/String source
 
 openpilot/SVDrMeasurementReport[] sv
 

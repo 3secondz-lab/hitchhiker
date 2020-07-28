@@ -38,7 +38,7 @@ std_msgs/String alertStatus
 std_msgs/String alertSize
 std_msgs/Float32 alertBlinkingRate
 std_msgs/String alertType
-std_msgs/UInt64 alertSound
+std_msgs/String alertSound
 std_msgs/Float32 awarenessStatus
 std_msgs/Bool gpsPlannerActive
 std_msgs/Bool engageable

@@ -1,6 +1,6 @@
 # MeasurementReportQcomGnss Message
 
-std_msgs/UInt64 source
+std_msgs/String source
 
 std_msgs/UInt32 fCount
 

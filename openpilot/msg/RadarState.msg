@@ -5,7 +5,7 @@ std_msgs/Header header
 std_msgs/UInt64[] canMonoTimes
 std_msgs/UInt64 mdMonoTime
 std_msgs/UInt64 controlsStateMonoTime
-std_msgs/UInt64[] radarErrors
+std_msgs/String[] radarErrors
 
 openpilot/LeadDataRadar leadOne
 openpilot/LeadDataRadar leadTwo

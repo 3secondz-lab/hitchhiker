@@ -20,7 +20,7 @@ std_msgs/UInt64 memRss
 std_msgs/Int32 processor
 
 std_msgs/String[] cmdline
-std_msgs/String[] exe
+std_msgs/String exe
 
 
 

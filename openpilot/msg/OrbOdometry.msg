@@ -1,6 +1,6 @@
 # OrbOdometry Message
 
-std_msgs/Header Header
+std_msgs/Header header
 
 # timing first
 std_msgs/UInt64 startMonoTime

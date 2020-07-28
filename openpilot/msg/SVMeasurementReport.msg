@@ -1,7 +1,7 @@
 # SVMeasurementReport Message
 
 std_msgs/UInt8 svId
-std_msgs/UInt64 observationState
+std_msgs/String observationState
 std_msgs/UInt8 observations
 std_msgs/UInt8 goodObservations
 std_msgs/UInt16 gpsParityErrorCount
