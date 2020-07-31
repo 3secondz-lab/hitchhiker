@@ -58,7 +58,7 @@ def callbackParam(config, level):
     rospy.loginfo("Dynamic parameter callback")
 
     # Track change
-    if aipath.fname_track != dict_track[config['track']]:
+    if aipath is not None and aipath.fname_track != dict_track[config['track']]:
         course_prev = aipath.fname_track
         course_new = dict_track[config['track']]
         aipath = ai(ac_path, course_new, debug_logger)
@@ -210,12 +210,18 @@ def generate_msg_from_data(data_udp: payload_t, preview: dict):
 if __name__ == '__main__':
     # Parameters
     global aipath
+    aipath = None
 
     name_node = 'ac_pub'
     freq_pub = rospy.get_param('/{}/freq_pub'.format(name_node), 500)
     print('freq_pub : {}'.format(freq_pub))
 
     rospy.init_node(name_node)
+
+    # Dynamic parameter server
+    print('Dynamic parameter server registration (Ignore course change messages)')
+    srv = Server(ACTargetParamsConfig, callbackParam)
+    print('Registration done.')
 
     host = rospy.get_param('/{}/host'.format(name_node), 'localhost')
     port = rospy.get_param('/{}/port'.format(name_node), 9996)
@@ -224,9 +230,7 @@ if __name__ == '__main__':
     print('Target course : {}'.format(course))
 
     aipath = ai(ac_path, course, debug_logger)
-
-    # Dynamic parameter server
-    srv = Server(ACTargetParamsConfig, callbackParam)
+    print('Course {} : initialized'.format(aipath.fname_track))
 
     # Connect
     target = (host, port)
