@@ -11,3 +11,7 @@ Openpilot - ROS message converter
 | (Duplicated name) | 1* |
 
 1. There are some duplicated names in different structures. They are renamed with their superclass name (ex. LeadData in ModelData and RadarState -> LeadDataModel and LeadDataRadar).
+
+## Notes
+
+1. Openpilot should use zmq for communication.

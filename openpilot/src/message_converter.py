@@ -7,6 +7,10 @@
 """
 
 
+# System
+import os
+os.environ["ZMQ"] = "1"
+
 # Python
 import numpy as np
 import random
@@ -23,95 +27,96 @@ from openpilot import msg as om
 import cereal.messaging as messaging
 from cereal import log, car
 from capnp.lib import capnp
+import zmq
 
 
 class MessageConverter:
+    dict_type = {
+        # 'initData': om.InitData,
+        'frame': om.FrameData,
+        'gpsNMEA': om.GPSNMEAData,
+        'can': om.CanDataList,
+        'can_element': om.CanData,
+        'thermal': om.ThermalData,
+        'controlsState': om.ControlsState,
+        'model': om.ModelData,
+        'features': om.CalibrationFeatures,
+        'sensorEvents': om.SensorEventDataList,
+        'sensorEvents_element': om.SensorEventData,
+        'health': om.HealthData,
+        'radarState': om.RadarState,
+        'encodeIdx': om.EncodeIndex,
+        'liveTracks': om.LiveTracksList,
+        'liveTracks_element': om.LiveTracks,
+        'sendcan': om.SendCanDataList,
+        'sendcan_element': om.CanData,
+        'logMessage': om.LogMessage,
+        'liveCalibration': om.LiveCalibrationData,
+        'androidLog': om.AndroidLogEntry,
+        'gpsLocation': om.GpsLocationData,
+        'carState': om.CarState,
+        'carControl': om.CarControl,
+        'plan': om.Plan,
+        'liveLocation': om.LiveLocationData,
+        'ethernetData': om.EthernetPacketList,
+        'ethernetData_element': om.EthernetPacket,
+        'navUpdate': om.NavUpdate,
+        # 'cellInfo': om.CellInfoList,
+        # 'cellInfo_element': om.CellInfo,
+        # 'wifiScan': om.WifiScanList,
+        # 'wifiScan_element': om.WifiScan,
+        # 'androidGnss': om.AndroidGnss,
+        'qcomGnss': om.QcomGnss,
+        'lidarPts': om.LidarPts,
+        'procLog': om.ProcLog,
+        'ubloxGnss': om.UbloxGnss,
+        'clocks': om.Clocks,
+        'liveMpc': om.LiveMpcData,
+        'liveLongitudinalMpc': om.LiveLongitudinalMpcData,
+        'navStatus': om.NavStatus,
+        'ubloxRaw': om.UbloxRaw,
+        'gpsPlannerPoints': om.GPSPlannerPoints,
+        'gpsPlannerPlan': om.GPSPlannerPlan,
+        'applanixRaw': om.ApplanixRaw,
+        'trafficEvents': om.TrafficEventList,
+        'trafficEvents_element': om.TrafficEvent,
+        'liveLocationTiming': om.LiveLocationData,
+        'liveLocationCorrected': om.LiveLocationData,
+        'orbObservation': om.OrbObservationList,
+        'orbObservation_element': om.OrbObservation,
+        'gpsLocationExternal': om.GpsLocationData,
+        # 'location': om.LiveLocationData,
+        'uiNavigationEvent': om.UiNavigationEvent,
+        'testJoystick': om.Joystick,
+        'orbOdometry': om.OrbOdometry,
+        'orbFeatures': om.OrbFeatures,
+        'applanixLocation': om.LiveLocationData,
+        'orbKeyFrame': om.OrbKeyFrame,
+        'uiLayoutState': om.UiLayoutState,
+        'orbFeaturesSummary': om.OrbFeaturesSummary,
+        'driverState': om.DriverState,
+        # 'boot': om.Boot,
+        'liveParameters': om.LiveParametersData,
+        'liveMapData': om.LiveMapData,
+        'cameraOdometry': om.CameraOdometry,
+        'pathPlan': om.PathPlan,
+        'kalmanOdometry': om.KalmanOdometry,
+        'thumbnail': om.Thumbnail,
+        'carEvents': om.CarEventList,
+        'carEvents_element': om.CarEvent,
+        'carParams': om.CarParams,
+        'frontFrame': om.FrameData,
+        'dMonitoringState': om.DMonitoringState,
+        'liveLocationKalman': om.LiveLocationKalman,
+        # 'sentinel': om.Sentinel
+    }
+
     def __init__(self, list_service):
         """
         Convert Openpilot services to ROS messages
 
         :param list_service: List of Openpilot services to subscribe
         """
-
-        self.dict_type = {
-            # 'initData': om.InitData,
-            'frame': om.FrameData,
-            'gpsNMEA': om.GPSNMEAData,
-            'can': om.CanDataList,
-            'can_element': om.CanData,
-            'thermal': om.ThermalData,
-            'controlsState': om.ControlsState,
-            'model': om.ModelData,
-            'features': om.CalibrationFeatures,
-            'sensorEvents': om.SensorEventDataList,
-            'sensorEvents_element': om.SensorEventData,
-            'health': om.HealthData,
-            'radarState': om.RadarState,
-            'encodeIdx': om.EncodeIndex,
-            'liveTracks': om.LiveTracksList,
-            'liveTracks_element': om.LiveTracks,
-            'sendcan': om.SendCanDataList,
-            'sendcan_element': om.CanData,
-            'logMessage': om.LogMessage,
-            'liveCalibration': om.LiveCalibrationData,
-            'androidLog': om.AndroidLogEntry,
-            'gpsLocation': om.GpsLocationData,
-            'carState': om.CarState,
-            'carControl': om.CarControl,
-            'plan': om.Plan,
-            'liveLocation': om.LiveLocationData,
-            'ethernetData': om.EthernetPacketList,
-            'ethernetData_element': om.EthernetPacket,
-            'navUpdate': om.NavUpdate,
-            # 'cellInfo': om.CellInfoList,
-            # 'cellInfo_element': om.CellInfo,
-            # 'wifiScan': om.WifiScanList,
-            # 'wifiScan_element': om.WifiScan,
-            # 'androidGnss': om.AndroidGnss,
-            'qcomGnss': om.QcomGnss,
-            'lidarPts': om.LidarPts,
-            'procLog': om.ProcLog,
-            'ubloxGnss': om.UbloxGnss,
-            'clocks': om.Clocks,
-            'liveMpc': om.LiveMpcData,
-            'liveLongitudinalMpc': om.LiveLongitudinalMpcData,
-            'navStatus': om.NavStatus,
-            'ubloxRaw': om.UbloxRaw,
-            'gpsPlannerPoints': om.GPSPlannerPoints,
-            'gpsPlannerPlan': om.GPSPlannerPlan,
-            'applanixRaw': om.ApplanixRaw,
-            'trafficEvents': om.TrafficEventList,
-            'trafficEvents_element': om.TrafficEvent,
-            'liveLocationTiming': om.LiveLocationData,
-            'liveLocationCorrected': om.LiveLocationData,
-            'orbObservation': om.OrbObservationList,
-            'orbObservation_element': om.OrbObservation,
-            'gpsLocationExternal': om.GpsLocationData,
-            # 'location': om.LiveLocationData,
-            'uiNavigationEvent': om.UiNavigationEvent,
-            'testJoystick': om.Joystick,
-            'orbOdometry': om.OrbOdometry,
-            'orbFeatures': om.OrbFeatures,
-            'applanixLocation': om.LiveLocationData,
-            'orbKeyFrame': om.OrbKeyFrame,
-            'uiLayoutState': om.UiLayoutState,
-            'orbFeaturesSummary': om.OrbFeaturesSummary,
-            'driverState': om.DriverState,
-            # 'boot': om.Boot,
-            'liveParameters': om.LiveParametersData,
-            'liveMapData': om.LiveMapData,
-            'cameraOdometry': om.CameraOdometry,
-            'pathPlan': om.PathPlan,
-            'kalmanOdometry': om.KalmanOdometry,
-            'thumbnail': om.Thumbnail,
-            'carEvents': om.CarEventList,
-            'carEvents_element': om.CarEvent,
-            'carParams': om.CarParams,
-            'frontFrame': om.FrameData,
-            'dMonitoringState': om.DMonitoringState,
-            'liveLocationKalman': om.LiveLocationKalman,
-            # 'sentinel': om.Sentinel
-        }
 
         # struct Event {
         #     # in nanoseconds?
@@ -208,6 +213,7 @@ class MessageConverter:
         for s in self.list_service:
             try:
                 if submaster.updated[s] and submaster.valid[s]:
+                    # print(s)
                     msg = self.convert(s, submaster)
                     # msg = self.type_and_converter[s][1](submaster)
 
@@ -881,46 +887,6 @@ def test():
     dict_data['liveLocationKalman'].liveLocationKalman.status = 'uncalibrated'
     dict_data['liveLocationKalman'].liveLocationKalman.gpsOK = False
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     pubmaster = messaging.PubMaster(dict_data.keys())
     submaster = messaging.SubMaster(dict_data.keys())
 
@@ -941,5 +907,63 @@ def test():
     print('Test finished')
 
 
+def debug():
+    import time
+    import os
+    os.environ["ZMQ"] = "1"
+
+    submaster = messaging.SubMaster(['thermal', 'sensorEvents'], addr="192.168.0.189")
+
+    while True:
+        submaster.update()
+
+        for k, v in submaster.updated.items():
+            print('{} : {}'.format(k, v))
+
+            if v:
+                d = submaster.data[k]
+                print(d.to_dict())
+
+            time.sleep(0.5)
+
+    print('Debug finished')
+
+
+def run():
+    rospy.init_node('openpilot')
+
+    freq = rospy.get_param('~freq', 100)
+    ip = rospy.get_param('~ip', '192.168.0.189')
+
+    rospy.loginfo("Frequency : {}".format(freq))
+    rospy.loginfo("Connect to {}".format(ip))
+
+    list_topic = []
+    for k, v in MessageConverter.dict_type.items():
+        if '_element' in k:
+            continue
+        list_topic.append(k)
+
+    submaster = messaging.SubMaster(list_topic, addr=ip)
+
+    mconv = MessageConverter(list_topic)
+
+    rate = rospy.Rate(freq)
+
+    while not rospy.is_shutdown():
+        submaster.update()
+
+        mconv.publish(submaster)
+
+        rate.sleep()
+
+    print('Test finished')
+
+
+
+
+
 if __name__ == '__main__':
-    test()
+    # test()
+    # debug()
+    run()
