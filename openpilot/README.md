@@ -5,7 +5,7 @@ Openpilot - ROS message converter
 
 | Cereal | ROS |
 |:--------:|:-----:|
-| Data | std_msgs/String |
+| Data | hex() -> std_msgs/String |
 | Enum | std_msgs/String |
 | xxxDEPRECATED | (Ignored) |
 | (Duplicated name) | 1* |
@@ -14,4 +14,4 @@ Openpilot - ROS message converter
 
 ## Notes
 
-1. Openpilot should use zmq for communication.
+1. Openpilot should use zmq for communication. However, if we set ZMQ=1, settings panel does not work (no idea).

@@ -245,7 +245,7 @@ class MessageConverter:
         elif type(d) == bytes:
             # UbloxRaw
             att = getattr(m, name)
-            setattr(att, 'data', d.decode())
+            setattr(att, 'data', d.hex())
         else:
             print('Unsupported type : {}'.format(type(d)))
 
@@ -306,7 +306,7 @@ class MessageConverter:
                         self.convert_dict(att, v2)
             elif type(v) == bytes:
                 att = getattr(msg, k)
-                setattr(att, 'data', v.decode())
+                setattr(att, 'data', v.hex())
             else:
                 att = getattr(msg, k)
                 setattr(att, 'data', v)
@@ -944,6 +944,7 @@ def run():
             continue
         list_topic.append(k)
 
+    # list_topic = ['can']
     submaster = messaging.SubMaster(list_topic, addr=ip)
 
     mconv = MessageConverter(list_topic)
